@@ -167,15 +167,22 @@ namespace aplication_csharp_ia
             if (oAgente.PoucaBateria())
             {
                 //Procurar um ponto de recarga
+
+                //Chamar método A*
+
             }
             else if (oAgente.LixoCheio())
             {
                 //Procurar um ponto de lixeira   
+
+                //Chamar método A*
+
             }
             else
             {
                 bool avancou = false;
 
+      
                 //Verificar ambiente somente sucessores que não foram limpos
                 foreach (var suc in sucessores)
                 {
