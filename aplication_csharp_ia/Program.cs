@@ -1,29 +1,38 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace aplication_csharp_ia
 {
     class Program
     {
+
+
         static void Main(string[] args)
         {
+
             Init(args);
         }
 
-        static void Init(string [] args)
-        {      
+        static void Init(string[] args)
+        {
             Console.WriteLine("Inicializa com o mínimo viável... ");
+            bool bLimpouAmbiente = false;
 
-            int iLixeiras, iRecargas = 1;
-            int iTam = 10;
-            int iCapacidadeLixo = 20;
-            int iCargaMinima = 20;
-            int QuantLixeiras = 10;
-            int QuantRecargas = 10;
+            //Variáveis para o agente
+            int capacidade_lixo_coletado = 20;
+            int carga_maxima = 20;
+
+            //Variáveis para o ambiente
+            int lixeiras, recargas = 1;
+            int tamanho = 10;
+            int quant_lixeiras = 3;
+            int quant_recargas = 3;
 
             Console.WriteLine("Tradução...");
             //(n) =(Linha,Coluna), Capacidade Lixo (T), Carga Minima (C), QuantLixeiras (l), QuantRecargas(r)
@@ -34,36 +43,59 @@ namespace aplication_csharp_ia
                 switch (value)
                 {
                     case "n":
-                        iTam = dados;
+                        tamanho = dados;
                         break;
                     case "t":
-                        iCapacidadeLixo = dados;
+                        capacidade_lixo_coletado = dados;
                         break;
                     case "c":
-                        iCargaMinima = dados;
+                        carga_maxima = dados;
                         break;
                     case "l":
-                        QuantLixeiras = dados;
+                        quant_lixeiras = dados;
                         break;
                     case "r":
-                        QuantRecargas = dados;
+                        quant_recargas = dados;
                         break;
                 }
             }
 
 
             Console.WriteLine("Inicializa o agente...");
-            var oAgente = new Agente(iCapacidadeLixo,iCargaMinima);
+            var oAgente = new Agente(capacidade_lixo_coletado, carga_maxima);
 
             Console.WriteLine("Inicializa mapa...");
-            var map = new Ambiente(oAgente,iTam , QuantRecargas, QuantLixeiras);
-                                            
+            var oMapa = new Ambiente(oAgente, tamanho, quant_recargas, quant_lixeiras);
 
             //Print Map
-           Console.WriteLine(map.ToString());
+            Console.WriteLine(oMapa.ToString());
 
+            
 
-            string Pause = "";
+            //Atualização
+            while (!bLimpouAmbiente)
+            {
+                //Atualiza as ações do agente e o mapa
+                bLimpouAmbiente = oMapa.Atualiza();
+
+                //Limpa console
+                Console.Clear();
+
+                //Print Map
+                Console.WriteLine(oMapa.ToString());
+
+                Thread.Sleep(1000);
+
+            }
+
+            //Informações do grupo
+            StringBuilder sDadosDev = new StringBuilder();
+            sDadosDev.AppendLine("Inteligência Artifical T1 2017/2 ");
+            sDadosDev.AppendLine("***Agente Coletor de Lixo*** ");
+            sDadosDev.AppendLine("Desenvolvedores:");
+            sDadosDev.AppendLine("Anderson Fraga, Jovani Brasil, Matheus Lima e  Renan Carvalho");
+            Console.WriteLine(sDadosDev.ToString());
+
 
         }
 
