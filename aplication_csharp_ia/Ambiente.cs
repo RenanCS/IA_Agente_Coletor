@@ -167,15 +167,33 @@ namespace aplication_csharp_ia
             if (oAgente.PoucaBateria())
             {
                 //Procurar um ponto de recarga
-
                 //Chamar método A*
+
+
+
+                /*
+                 * Ponto e Cell não podem ser a mesma coisa?
+                 * 
+                 * 
+                 */
+                foreach(var l in lixeiras)
+                {
+                    oAgente.aEstrela(oAgente.posAtual, l);
+                }
+                
+
 
             }
             else if (oAgente.LixoCheio())
             {
                 //Procurar um ponto de lixeira   
-
                 //Chamar método A*
+
+                
+
+                oAgente.aEstrela();
+
+
 
             }
             else
@@ -189,10 +207,15 @@ namespace aplication_csharp_ia
                     if(oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
                         continue;
                     
-                     var obj = map[suc.x, suc.y].item.ToString();
+                    var obj = map[suc.x, suc.y].item.ToString();
 
                     if (obj == " X " || obj == " . ")
                     {
+                        if (obj == " X ")
+                            oAgente.quantLixo += 1;
+
+                        oAgente.quantBateria -= 1;
+                      
                         avancou = true;
 
                         map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
@@ -286,10 +309,13 @@ namespace aplication_csharp_ia
                 {
                     linha += map[i, j].item;
                 }
-
+ 
                 linha += "\n\t";
 
             }
+
+            linha += "Carga Bateria: " + oAgente.quantBateria + "\t\t\n Carga Lixo: " + oAgente.quantLixo;
+
             return linha;
         }
 

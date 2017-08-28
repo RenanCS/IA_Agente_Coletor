@@ -52,12 +52,24 @@ namespace aplication_csharp_ia
             quantBateria = capacidade_maxima_bateria;
         }
 
-     
+        
+        public void aEstrela(Ponto inicio, Cell objetivo, Cell[,] map)
+        {
+            List<Boolean> visitados = new List<Boolean>();
 
+            
+            
+
+
+
+
+        }
+        
         public override string ToString()
         {
             return " A ";
         }
+
     }
 
     public class Ponto
