@@ -15,6 +15,11 @@ namespace aplication_csharp_ia
         private List<Cell> recargas;
         private Agente oAgente;
 
+        private bool Procurando_Lixeira { get; set; }
+        private bool Procurando_Recarga { get; set; }
+
+        private List<Ponto> melhorcaminho;
+        
         public Ambiente(Agente oAgent, int tamanho, int iQuantRecargas, int iQuantLixeiras)
         {
             this.oAgente = oAgent;
@@ -44,9 +49,7 @@ namespace aplication_csharp_ia
             oAgente.posAtual = new Ponto(0, 0);
             oAgente.quantLixo = 0;
             oAgente.EncherBateria();
-            map[0, 0].item = oAgente;
-
-
+            map[0, 0].item = oAgente;   
         }
 
         private void DesenhaBase(Cell[,] map, int iNxN)
@@ -161,87 +164,79 @@ namespace aplication_csharp_ia
         {
             bool limpou_tudo = false;
 
-            List<Ponto> sucessores = BuscaSucessores(oAgente.posAtual);
-
-            //Verifica Bateria
-            if (oAgente.PoucaBateria())
+            if (Procurando_Lixeira)
             {
-                //Procurar um ponto de recarga
-                //Chamar método A*
 
-
-
-                /*
-                 * Ponto e Cell não podem ser a mesma coisa?
-                 * 
-                 * 
-                 */
-                foreach(var l in lixeiras)
-                {
-                    oAgente.aEstrela(oAgente.posAtual, l);
-                }
-                
-
-
+                Procurando_Lixeira = false;
             }
-            else if (oAgente.LixoCheio())
+            else if (Procurando_Recarga)
             {
-                //Procurar um ponto de lixeira   
-                //Chamar método A*
 
-                
-
-                oAgente.aEstrela();
-
-
-
+                Procurando_Recarga = false;
             }
             else
             {
-                bool avancou = false;
+                List<Ponto> sucessores = BuscaSucessores(oAgente.posAtual);
 
-      
-                //Verificar ambiente somente sucessores que não foram limpos
-                foreach (var suc in sucessores)
+                //Verifica Bateria
+                if (oAgente.PoucaBateria())
                 {
-                    if(oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
-                        continue;
-                    
-                    var obj = map[suc.x, suc.y].item.ToString();
+                    Procurando_Recarga = true;
 
-                    if (obj == " X " || obj == " . ")
-                    {
-                        if (obj == " X ")
-                            oAgente.quantLixo += 1;
-
-                        oAgente.quantBateria -= 1;
-                      
-                        avancou = true;
-
-                        map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
-
-                        oAgente.caminhoLimpo.Add(oAgente.posAtual);
-
-                        oAgente.posAtual = new Ponto(suc.x, suc.y);
-
-                        map[suc.x, suc.y].item = oAgente;
-
-                        break;
-
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
+                    //Chamar método A*
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, map);
                 }
+                else if (oAgente.LixoCheio())
+                {
+                    Procurando_Lixeira = true;
 
-                //Caso o agente se encurrale, ele limpa cache
-                if(!avancou)
-                    oAgente.caminhoLimpo.Clear();
+                    //Chamar método A*     
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, map);
+                }
+                else
+                {
+                    bool avancou = false;  
 
+                    //Verificar ambiente somente sucessores que não foram limpos
+                    foreach (var suc in sucessores)
+                    {
+                        if (oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
+                            continue;
+
+                        var obj = map[suc.x, suc.y].item.ToString();
+
+                        if (obj == " X " || obj == " . ")
+                        {
+                            if (obj == " X ")
+                                oAgente.quantLixo += 1;
+
+                            oAgente.quantBateria -= 1;
+
+                            avancou = true;
+
+                            map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
+
+                            oAgente.caminhoLimpo.Add(oAgente.posAtual);
+
+                            oAgente.posAtual = new Ponto(suc.x, suc.y);
+
+                            map[suc.x, suc.y].item = oAgente;
+
+                            break;
+
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                    }
+
+                    //Caso o agente se encurrale, ele limpa cache
+                    if (!avancou)
+                        oAgente.caminhoLimpo.Clear();
+                }
             }
-
 
 
             return limpou_tudo;
@@ -267,33 +262,33 @@ namespace aplication_csharp_ia
 
             //Posicao Inferior
             if (x + 1 < tam_map && map[x + 1, y].item != " P ")
-                l.Add(new Ponto( x + 1,  y ));
+                l.Add(new Ponto(x + 1, y));
 
 
 
             //Posição Superior
             if (x - 1 >= 0 && map[x - 1, y].item != " P ")
-                l.Add(new Ponto(x - 1, y ));
+                l.Add(new Ponto(x - 1, y));
 
 
 
             //Diagonal Esquerda Superior
             if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
-                l.Add(new Ponto(  x - 1,  y - 1 ));
+                l.Add(new Ponto(x - 1, y - 1));
 
             //Diagonal Direita Superior
             if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
-                l.Add(new Ponto( x - 1,  y + 1 ));
+                l.Add(new Ponto(x - 1, y + 1));
 
 
             //Diagonal Esquerda Inferior
             if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item != " P ")
-                l.Add(new Ponto( x + 1,  y - 1 ));
+                l.Add(new Ponto(x + 1, y - 1));
 
 
             //Diagonal Direita Inferior
             if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
-                l.Add(new Ponto( x + 1,  y + 1 ));
+                l.Add(new Ponto(x + 1, y + 1));
 
 
             return l;
@@ -309,7 +304,7 @@ namespace aplication_csharp_ia
                 {
                     linha += map[i, j].item;
                 }
- 
+
                 linha += "\n\t";
 
             }
