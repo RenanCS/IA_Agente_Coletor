@@ -8,7 +8,7 @@ namespace aplication_csharp_ia
 {
     public class Agente
     {
-        public List<Ponto> caminhoLimpo { get; set; }
+        public List<Nodo> caminhoLimpo { get; set; }
 
         //Nivelamento do lixo
         private int capacidade_maxima_lixo { get; set; }
@@ -20,16 +20,16 @@ namespace aplication_csharp_ia
         public int quantBateria { get; set; }
 
         //Posição atual do agente
-        public Ponto posAtual { get; set; }
+        public Nodo posAtual { get; set; }
 
         //Última posição no caso de ir recarregar e/ou esvaziar lixo
-        public Ponto ultimaPosicao { get; set; }
+        public Nodo ultimaPosicao { get; set; }
 
         public Agente(int capacidade_maxima_lixo, int capacidade_maxima_bateria)
         {
             this.capacidade_maxima_lixo = capacidade_maxima_lixo;
             this.capacidade_maxima_bateria = capacidade_maxima_bateria;
-            this.caminhoLimpo = new List<Ponto>();
+            this.caminhoLimpo = new List<Nodo>();
         }
 
         public bool LixoCheio()
@@ -53,27 +53,138 @@ namespace aplication_csharp_ia
         }
 
         //Heurística 
-        internal int Heuristica(Ponto p1, Ponto p2)
-        {
+        internal int Heuristica(Nodo p1, Nodo p2){
+
             var x = p1.x - p2.x;
             var y = p1.y - p2.y;
             return Math.Abs(x) + Math.Abs(y);
         }
 
-        internal List<Ponto> aEstrela(Ponto inicio, Cell objetivo, Cell[,] map)
-        {
+        internal List<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb){
+            
+            // The set of nodes already evaluated
+            // closedSet:= { }
+            Boolean[] conjuntoFechado = new Boolean[amb.map.Length];
 
+            // The set of currently discovered nodes that are not evaluated yet.
+            // Initially, only the start node is known.
+            // openSet:= { start}
+            LinkedList<Nodo> conjuntoAberto = new LinkedList<Nodo>();
+            conjuntoAberto.AddLast(inicio);
+
+            Boolean[] indiceConjuntoAberto = new Boolean[amb.map.Length];
+
+            // For each node, which node it can most efficiently be reached from.
+            // If a node can be reached from many nodes, cameFrom will eventually contain the
+            // most efficient previous step.
+            // cameFrom:= the empty map
+            List<Nodo> vemDe = new List<Nodo>(amb.map.Length);
+
+            // For each node, the cost of getting from the start node to that node.
+            // gScore:= map with default value of Infinity
+            List<int> gScore = new List<int>(amb.map.Length);
+
+            // For each node, the total cost of getting from the start node to the goal
+            // by passing by that node. That value is partly known, partly heuristic.
+            // fScore:= map with default value of Infinity
+            List<int> fScore = new List<int>(amb.map.Length);
+
+            Console.WriteLine(amb.map.Length);
+
+            for(int i = 0; i < amb.map.Length; i++){
+                indiceConjuntoAberto[i] = false;
+            }
+
+            // The cost of going from start to start is zero.
+            // gScore[start] := 0
+            inicio.gscore = 0;
+
+            // For the first node, that value is completely heuristic.
+            // fScore[start] := heuristic_cost_estimate(start, goal)
+            inicio.fscore = Heuristica(
+                inicio, new Nodo(objetivo.linha, objetivo.coluna));
+
+            indiceConjuntoAberto[inicio.y * 10 + inicio.x] = true;
+
+            // while openSet is not empty
+            while (conjuntoAberto.Count > 0){
+
+                conjuntoAberto.OrderBy(o => o.fscore).ToList();
+                
+                // current:= the node in openSet having the lowest fScore[] value
+                Nodo atual = conjuntoAberto.First();
+                
+                // if current = goal
+                //      return reconstruct_path(cameFrom, current)
+                if(atual.x == objetivo.linha && atual.y == objetivo.coluna){
+                    // Remonta caminho
+                    Console.WriteLine("Encontrou o caminho");
+                    
+                }
+
+                // openSet.Remove(current)
+                conjuntoAberto.RemoveFirst();
+                indiceConjuntoAberto[inicio.y * 10 + inicio.x] = false;
+                // closedSet.Add(current)
+                conjuntoFechado[atual.y* 10 + atual.x] = true;
+
+                // for each neighbor of current
+                foreach (var suc in amb.BuscaSucessores(atual)){
+
+                    // Console.WriteLine(suc.xy);
+
+                    // if neighbor in closedSet
+                    //    continue		// Ignore the neighbor which is already evaluated.
+                    if (conjuntoFechado[suc.y * 10 + suc.x] == true)
+                        continue;
+
+                    //if neighbor not in openSet	// Discover a new node
+                    //    openSet.Add(neighbor)
+                    if (indiceConjuntoAberto[suc.y * 10 + suc.x] == false){
+                        conjuntoAberto.AddLast(suc);
+                        indiceConjuntoAberto[suc.y * 10 + suc.x] = true;
+                    }
+
+                    // The distance from start to a neighbor
+                    // tentative_gScore:= gScore[current] + dist_between(current, neighbor)
+                    int gScore_temp = atual.gscore + Heuristica(atual, suc);
+
+                    // if tentative_gScore >= gScore[neighbor]
+                    //    continue		// This is not a better path.
+                    if (gScore_temp >= suc.gscore)
+                        continue;
+
+                    // This path is the best until now. Record it!
+                    // cameFrom[neighbor] := current
+                    vemDe[suc.y * amb.map.Length + suc.x] = atual;
+
+                    // gScore[neighbor] := tentative_gScore
+                    // fScore[neighbor] := gScore[neighbor] + heuristic_cost_estimate(neighbor, goal)
+                    suc.gscore = gScore_temp;
+                    suc.fscore = gScore_temp + Heuristica(suc, new Nodo(objetivo.linha, objetivo.coluna));
+
+                }
+            }
+
+
+            Console.WriteLine("falhou");
+
+            // return failure
             return null;
+
         }
 
-        public List<Ponto> BuscaMelhorCaminho(Ponto posAtual, List<Cell> listObj, Cell[,] map)
+        public List<Nodo> BuscaMelhorCaminho(Nodo posAtual, List<Cell> listObj, Ambiente amb)
         {                       
-            List<Ponto> lPontos = new List<Ponto>();
+            List<Nodo> lPontos = new List<Nodo>();
 
             foreach (var l in listObj)
             {
 
-                List<Ponto>  lAux = aEstrela(posAtual, l, map);
+                List<Nodo>  lAux = buscaCaminho(posAtual, l, amb);
+
+                if (lAux == null)
+                    continue;
 
                 //Armazena menor percurso
                 if (lPontos.Count == 0 || lAux.Count < lPontos.Count)
@@ -91,19 +202,22 @@ namespace aplication_csharp_ia
 
     }
 
-    public class Ponto
+    public class Nodo
     {
-        public Ponto(int x, int y)
+        public Nodo(int x, int y)
         {
             this.x = x;
             this.y = y;
             this.xy = string.Concat(x, y);
+            this.fscore = int.MaxValue;
+            this.gscore = 0;
         }
 
         public int x { get; set; }
         public int y { get; set; }
         public string xy { get; set; }
-
+        public int fscore { get; set; }
+        public int gscore { get; set; }
 
     }
 

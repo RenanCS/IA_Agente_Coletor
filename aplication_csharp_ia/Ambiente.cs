@@ -18,7 +18,7 @@ namespace aplication_csharp_ia
         private bool Procurando_Lixeira { get; set; }
         private bool Procurando_Recarga { get; set; }
 
-        private List<Ponto> melhorcaminho;
+        private List<Nodo> melhorcaminho;
         
         public Ambiente(Agente oAgent, int tamanho, int iQuantRecargas, int iQuantLixeiras)
         {
@@ -46,7 +46,7 @@ namespace aplication_csharp_ia
             DesenhaLixo(map, tam_map, quantLixo);
 
             //Inicia agente
-            oAgente.posAtual = new Ponto(0, 0);
+            oAgente.posAtual = new Nodo(0, 0);
             oAgente.quantLixo = 0;
             oAgente.EncherBateria();
             map[0, 0].item = oAgente;   
@@ -176,7 +176,7 @@ namespace aplication_csharp_ia
             }
             else
             {
-                List<Ponto> sucessores = BuscaSucessores(oAgente.posAtual);
+                List<Nodo> sucessores = BuscaSucessores(oAgente.posAtual);
 
                 //Verifica Bateria
                 if (oAgente.PoucaBateria())
@@ -184,14 +184,14 @@ namespace aplication_csharp_ia
                     Procurando_Recarga = true;
 
                     //Chamar método A*
-                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, map);
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, this);
                 }
                 else if (oAgente.LixoCheio())
                 {
                     Procurando_Lixeira = true;
 
                     //Chamar método A*     
-                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, map);
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
                 }
                 else
                 {
@@ -218,7 +218,7 @@ namespace aplication_csharp_ia
 
                             oAgente.caminhoLimpo.Add(oAgente.posAtual);
 
-                            oAgente.posAtual = new Ponto(suc.x, suc.y);
+                            oAgente.posAtual = new Nodo(suc.x, suc.y);
 
                             map[suc.x, suc.y].item = oAgente;
 
@@ -243,52 +243,52 @@ namespace aplication_csharp_ia
         }
 
 
-        private List<Ponto> BuscaSucessores(Ponto posAtual)
+        public List<Nodo> BuscaSucessores(Nodo posAtual)
         {
             //Obs: Está nesta ordem, por causa da movimentação do agente
             // ->, Down, <-, Up,Diagonal Esq Sup, D.D.Sup, D.E.Inf, D.D.Inf 
             var x = posAtual.x;
             var y = posAtual.y;
 
-            List<Ponto> l = new List<Ponto>();
+            List<Nodo> l = new List<Nodo>();
 
             //Posição Posterior
             if (y + 1 < tam_map && map[x, y + 1].item != " P ")
-                l.Add(new Ponto(x, y + 1));
+                l.Add(new Nodo(x, y + 1));
 
             //Posição Anterior
             if (y - 1 >= 0 && map[x, y - 1].item != " P ")
-                l.Add(new Ponto(x, y - 1));
+                l.Add(new Nodo(x, y - 1));
 
             //Posicao Inferior
             if (x + 1 < tam_map && map[x + 1, y].item != " P ")
-                l.Add(new Ponto(x + 1, y));
+                l.Add(new Nodo(x + 1, y));
 
 
 
             //Posição Superior
             if (x - 1 >= 0 && map[x - 1, y].item != " P ")
-                l.Add(new Ponto(x - 1, y));
+                l.Add(new Nodo(x - 1, y));
 
 
 
             //Diagonal Esquerda Superior
             if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
-                l.Add(new Ponto(x - 1, y - 1));
+                l.Add(new Nodo(x - 1, y - 1));
 
             //Diagonal Direita Superior
             if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
-                l.Add(new Ponto(x - 1, y + 1));
+                l.Add(new Nodo(x - 1, y + 1));
 
 
             //Diagonal Esquerda Inferior
             if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item != " P ")
-                l.Add(new Ponto(x + 1, y - 1));
+                l.Add(new Nodo(x + 1, y - 1));
 
 
             //Diagonal Direita Inferior
             if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
-                l.Add(new Ponto(x + 1, y + 1));
+                l.Add(new Nodo(x + 1, y + 1));
 
 
             return l;
