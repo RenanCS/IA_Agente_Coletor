@@ -15,13 +15,13 @@ namespace aplication_csharp_ia
         public int quantLixo { get; set; }
 
         //Nivelamento da bateria
-        private int capacidade_maxima_bateria { get; set; }  
+        private int capacidade_maxima_bateria { get; set; }
         private int capacidade_minima_bateria { get; set; } = 10;
         public int quantBateria { get; set; }
 
         //Posição atual do agente
         public Ponto posAtual { get; set; }
-        
+
         //Última posição no caso de ir recarregar e/ou esvaziar lixo
         public Ponto ultimaPosicao { get; set; }
 
@@ -52,23 +52,42 @@ namespace aplication_csharp_ia
             quantBateria = capacidade_maxima_bateria;
         }
 
-        
-        public void aEstrela(Ponto inicio, Cell objetivo, Cell[,] map)
+        //Heurística 
+        internal int Heuristica(Ponto p1, Ponto p2)
         {
-            List<Boolean> visitados = new List<Boolean>();
-
-            
-            
-
-
-
-
+            var x = p1.x - p2.x;
+            var y = p1.y - p2.y;
+            return Math.Abs(x) + Math.Abs(y);
         }
-        
+
+        internal List<Ponto> aEstrela(Ponto inicio, Cell objetivo, Cell[,] map)
+        {
+
+            return null;
+        }
+
+        public List<Ponto> BuscaMelhorCaminho(Ponto posAtual, List<Cell> listObj, Cell[,] map)
+        {                       
+            List<Ponto> lPontos = new List<Ponto>();
+
+            foreach (var l in listObj)
+            {
+
+                List<Ponto>  lAux = aEstrela(posAtual, l, map);
+
+                //Armazena menor percurso
+                if (lPontos.Count == 0 || lAux.Count < lPontos.Count)
+                    lPontos = lAux;
+            }
+
+            return lPontos;
+        }
+
         public override string ToString()
         {
             return " A ";
         }
+
 
     }
 
@@ -84,8 +103,8 @@ namespace aplication_csharp_ia
         public int x { get; set; }
         public int y { get; set; }
         public string xy { get; set; }
-           
-        
+
+
     }
-  
+
 }
