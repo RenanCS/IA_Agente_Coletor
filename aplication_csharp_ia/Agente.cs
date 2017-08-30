@@ -53,147 +53,119 @@ namespace aplication_csharp_ia
         }
 
         //Heurística 
-        internal int Heuristica(Nodo p1, Nodo p2){
+        internal int Heuristica(Nodo p1, Nodo p2)
+        {
 
             var x = p1.x - p2.x;
             var y = p1.y - p2.y;
             return Math.Abs(x) + Math.Abs(y);
         }
 
-        internal List<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb){
+        internal List<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb)
+        {
+            Cell[,] map = (Cell[,])amb.map.Clone();
+
+            Nodo atual = inicio;
 
             Console.WriteLine(inicio.x + "-" + inicio.y + " => " + objetivo.linha + "-" + objetivo.coluna);
-            Console.ReadKey();
 
-            // The set of nodes already evaluated
-            // closedSet:= { }
-            Boolean[] conjuntoFechado = new Boolean[amb.map.Length];
+            Nodo nodo_objetivo = new Nodo(objetivo.linha, objetivo.coluna);
 
-            // The set of currently discovered nodes that are not evaluated yet.
-            // Initially, only the start node is known.
-            // openSet:= { start}
+            List<Nodo> sucessores_objetivo = amb.BuscaSucessores(nodo_objetivo);
+
             LinkedList<Nodo> conjuntoAberto = new LinkedList<Nodo>();
+
+            LinkedList<Nodo> conjuntoFechado = new LinkedList<Nodo>();
+
             conjuntoAberto.AddLast(inicio);
 
-            Boolean[] indiceConjuntoAberto = new Boolean[amb.map.Length];
 
-            // For each node, which node it can most efficiently be reached from.
-            // If a node can be reached from many nodes, cameFrom will eventually contain the
-            // most efficient previous step.
-            // cameFrom:= the empty map
-            List<Nodo> vemDe = new List<Nodo>(amb.map.Length);
-
-            // For each node, the cost of getting from the start node to that node.
-            // gScore:= map with default value of Infinity
-            List<int> gScore = new List<int>(amb.map.Length);
-
-            // For each node, the total cost of getting from the start node to the goal
-            // by passing by that node. That value is partly known, partly heuristic.
-            // fScore:= map with default value of Infinity
-            List<int> fScore = new List<int>(amb.map.Length);
-
-            Console.WriteLine(amb.map.Length);
-
-
-            for(int i = 0; i < amb.map.Length; i++){
-                indiceConjuntoAberto[i] = false;
-            }
-
-            // The cost of going from start to start is zero.
-            // gScore[start] := 0
-            inicio.gscore = 0;
-
-            // For the first node, that value is completely heuristic.
-            // fScore[start] := heuristic_cost_estimate(start, goal)
-            inicio.fscore = Heuristica(
-                inicio, new Nodo(objetivo.linha, objetivo.coluna));
-
-            // Esse 10 deveria ser a largura do mapa.
-            indiceConjuntoAberto[inicio.y * 10 + inicio.x] = true;
-
-            // while openSet is not empty
-            while (conjuntoAberto.Count > 0){
-
+            while (true)
+            {
                 conjuntoAberto.OrderBy(o => o.fscore).ToList();
-                
-                // current:= the node in openSet having the lowest fScore[] value
-                Nodo atual = conjuntoAberto.First();
 
-                amb.map[atual.x, atual.y] = new Cell() { item = " Z " };
-                Console.WriteLine(amb.map.ToString());
+                atual = conjuntoAberto.First();
+
+                map[atual.x, atual.y].item = " Z ";
 
 
-                Console.WriteLine("atual -> " + atual.x + "-" + atual.y + "\n");
+                Console.WriteLine(atual.x + " - " + atual.y + "\n");
 
-                // if current = goal
-                //      return reconstruct_path(cameFrom, current)
-                if (atual.x == objetivo.linha && atual.y == objetivo.coluna){
-                    // Remonta caminho
-                    Console.WriteLine("Encontrou o caminho\n");
+                Console.WriteLine(amb.ToString());
 
-                    Console.WriteLine(atual.prev.x + " - " + atual.prev.y + "\n");
 
-                    Console.ReadKey();
-                    
-                    
-                    
-                    //return constroiCaminho();
-                }
+                if (sucessores_objetivo.Any(o => o.xy == atual.xy))
+                    break; // Encontrou o caminho
 
-                // openSet.Remove(current)
+                if (conjuntoAberto.Count == 0)
+                    break; //Não encontrou o caminho
+
                 conjuntoAberto.RemoveFirst();
-                indiceConjuntoAberto[inicio.y * 10 + inicio.x] = false;
-                // closedSet.Add(current)
-                conjuntoFechado[atual.y* 10 + atual.x] = true;
 
-                // for each neighbor of current
-                foreach (var suc in amb.BuscaSucessores(atual)){
+                conjuntoFechado.AddFirst(atual);
 
 
-                    Console.WriteLine("suc -> " + suc.x + "-" + suc.y + "\n");
-                    Console.ReadKey();
-
-                    // Console.WriteLine(suc.xy);
-
-                    // if neighbor in closedSet
-                    //    continue		// Ignore the neighbor which is already evaluated.
-                    if (conjuntoFechado[suc.y * 10 + suc.x] == true)
+                foreach (var vizinho in amb.BuscaSucessores(atual))
+                {
+                    string tipo_vizinho = amb.map[vizinho.x, vizinho.y].item.ToString();
+                    
+                    //Posição vizinho é recarga e/ou lixeira não computar
+                    if (tipo_vizinho == " L " || tipo_vizinho == " R ")
+                        continue;
+                    
+                    //Vizinho já está na lista fechada
+                    if (conjuntoFechado.Any(o => o.xy == vizinho.xy))
                         continue;
 
-                    //if neighbor not in openSet	// Discover a new node
-                    //    openSet.Add(neighbor)
-                    if (indiceConjuntoAberto[suc.y * 10 + suc.x] == false){
-                        conjuntoAberto.AddLast(suc);
-                        indiceConjuntoAberto[suc.y * 10 + suc.x] = true;
+                    //Vizinho não está na lista aberta
+                    if (!conjuntoAberto.Any(o => o.xy == vizinho.xy))
+                    {
+                        vizinho.prev = atual;
+
+                        vizinho.gscore = atual.gscore + 1;
+
+                        vizinho.fscore = vizinho.gscore +
+                                         Heuristica(vizinho, nodo_objetivo);
+
+                        conjuntoAberto.AddFirst(vizinho);
+
+                    }
+                    else
+                    {
+
+                        var vizinho_antigo = conjuntoAberto.FirstOrDefault(o => o.xy == vizinho.xy);
+
+                        if (vizinho_antigo.gscore < vizinho.gscore)
+                        {
+                            conjuntoAberto.Remove(vizinho_antigo);
+
+                            vizinho_antigo.gscore = atual.gscore + 1;
+
+                            vizinho_antigo.fscore = vizinho_antigo.gscore + Heuristica(vizinho_antigo, nodo_objetivo);
+
+                            vizinho_antigo.prev = atual;
+
+                            conjuntoAberto.AddFirst(vizinho_antigo);
+                        }
+
                     }
 
-                    // The distance from start to a neighbor
-                    // tentative_gScore:= gScore[current] + dist_between(current, neighbor)
-                    int gScore_temp = atual.gscore + Heuristica(atual, suc);
-
-                    // if tentative_gScore >= gScore[neighbor]
-                    //    continue		// This is not a better path.
-                    if (gScore_temp >= suc.gscore)
-                        continue;
-
-                    // This path is the best until now. Record it!
-                    // cameFrom[neighbor] := current
-                    //vemDe[suc.y * amb.map.Length + suc.x] = atual;
-                    suc.prev = atual;
-                    
-                    // gScore[neighbor] := tentative_gScore
-                    // fScore[neighbor] := gScore[neighbor] + heuristic_cost_estimate(neighbor, goal)
-                    suc.gscore = gScore_temp;
-                    suc.fscore = gScore_temp + Heuristica(suc, new Nodo(objetivo.linha, objetivo.coluna));
-
                 }
+
             }
 
+            List<Nodo> caminho = new List<Nodo>();
 
-            Console.WriteLine("falhou");
+            caminho.Add(atual);
 
-            // return failure
-            return null;
+            while (atual.prev != null)
+            {
+                caminho.Add(atual.prev);
+
+                atual = atual.prev;
+            }
+
+            return caminho;
 
         }
 
@@ -205,7 +177,7 @@ namespace aplication_csharp_ia
             foreach (var l in listObj)
             {
 
-                List<Nodo>  lAux = buscaCaminho(posAtual, l, amb);
+                List<Nodo> lAux = buscaCaminho(posAtual, l, amb);
 
                 if (lAux == null)
                     continue;
