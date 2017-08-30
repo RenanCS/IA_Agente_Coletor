@@ -61,7 +61,10 @@ namespace aplication_csharp_ia
         }
 
         internal List<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb){
-            
+
+            Console.WriteLine(inicio.x + "-" + inicio.y + " => " + objetivo.linha + "-" + objetivo.coluna);
+            Console.ReadKey();
+
             // The set of nodes already evaluated
             // closedSet:= { }
             Boolean[] conjuntoFechado = new Boolean[amb.map.Length];
@@ -105,6 +108,7 @@ namespace aplication_csharp_ia
             inicio.fscore = Heuristica(
                 inicio, new Nodo(objetivo.linha, objetivo.coluna));
 
+            // Esse 10 deveria ser a largura do mapa.
             indiceConjuntoAberto[inicio.y * 10 + inicio.x] = true;
 
             // while openSet is not empty
@@ -114,13 +118,26 @@ namespace aplication_csharp_ia
                 
                 // current:= the node in openSet having the lowest fScore[] value
                 Nodo atual = conjuntoAberto.First();
-                
+
+                amb.map[atual.x, atual.y] = new Cell() { item = " Z " };
+                Console.WriteLine(amb.map.ToString());
+
+
+                Console.WriteLine("atual -> " + atual.x + "-" + atual.y + "\n");
+
                 // if current = goal
                 //      return reconstruct_path(cameFrom, current)
-                if(atual.x == objetivo.linha && atual.y == objetivo.coluna){
+                if (atual.x == objetivo.linha && atual.y == objetivo.coluna){
                     // Remonta caminho
-                    Console.WriteLine("Encontrou o caminho");
+                    Console.WriteLine("Encontrou o caminho\n");
+
+                    Console.WriteLine(atual.prev.x + " - " + atual.prev.y + "\n");
+
+                    Console.ReadKey();
                     
+                    
+                    
+                    //return constroiCaminho();
                 }
 
                 // openSet.Remove(current)
@@ -131,6 +148,10 @@ namespace aplication_csharp_ia
 
                 // for each neighbor of current
                 foreach (var suc in amb.BuscaSucessores(atual)){
+
+
+                    Console.WriteLine("suc -> " + suc.x + "-" + suc.y + "\n");
+                    Console.ReadKey();
 
                     // Console.WriteLine(suc.xy);
 
@@ -157,8 +178,9 @@ namespace aplication_csharp_ia
 
                     // This path is the best until now. Record it!
                     // cameFrom[neighbor] := current
-                    vemDe[suc.y * amb.map.Length + suc.x] = atual;
-
+                    //vemDe[suc.y * amb.map.Length + suc.x] = atual;
+                    suc.prev = atual;
+                    
                     // gScore[neighbor] := tentative_gScore
                     // fScore[neighbor] := gScore[neighbor] + heuristic_cost_estimate(neighbor, goal)
                     suc.gscore = gScore_temp;
@@ -176,7 +198,8 @@ namespace aplication_csharp_ia
         }
 
         public List<Nodo> BuscaMelhorCaminho(Nodo posAtual, List<Cell> listObj, Ambiente amb)
-        {                       
+        {
+
             List<Nodo> lPontos = new List<Nodo>();
 
             foreach (var l in listObj)
@@ -212,13 +235,16 @@ namespace aplication_csharp_ia
             this.xy = string.Concat(x, y);
             this.fscore = int.MaxValue;
             this.gscore = 0;
+            this.prev = null;
         }
 
         public int x { get; set; }
         public int y { get; set; }
         public string xy { get; set; }
+
         public int fscore { get; set; }
         public int gscore { get; set; }
+        public Nodo prev { get; set; }
 
     }
 

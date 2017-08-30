@@ -182,16 +182,19 @@ namespace aplication_csharp_ia
                 if (oAgente.PoucaBateria())
                 {
                     Procurando_Recarga = true;
-
+                    Console.WriteLine("Buscando melhor caminho ... \n");
+                    Console.WriteLine(recargas.Count + " carrregadores disponíveis.\n");
+                    Console.ReadKey();
                     //Chamar método A*
-                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, this);
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
                 }
                 else if (oAgente.LixoCheio())
                 {
                     Procurando_Lixeira = true;
 
-                    //Chamar método A*     
-                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
+                    //Chamar método A*
+                    Console.WriteLine("Buscando melhor caminho ... \n");
+                    melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, this);
                 }
                 else
                 {
