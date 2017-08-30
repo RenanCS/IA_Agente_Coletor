@@ -91,6 +91,7 @@ namespace aplication_csharp_ia
 
             Console.WriteLine(amb.map.Length);
 
+
             for(int i = 0; i < amb.map.Length; i++){
                 indiceConjuntoAberto[i] = false;
             }
