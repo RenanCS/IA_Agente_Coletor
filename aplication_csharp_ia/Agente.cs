@@ -10,6 +10,8 @@ namespace aplication_csharp_ia
     {
         public List<Nodo> caminhoLimpo { get; set; }
 
+        public string Simbolo { get; set; } = " A "; 
+
         //Nivelamento do lixo
         private int capacidade_maxima_lixo { get; set; }
         public int quantLixo { get; set; }
@@ -61,7 +63,7 @@ namespace aplication_csharp_ia
             return Math.Abs(x) + Math.Abs(y);
         }
 
-        internal List<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb)
+        internal LinkedList<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb)
         {
             Cell[,] map = (Cell[,])amb.map.Clone();
 
@@ -86,9 +88,8 @@ namespace aplication_csharp_ia
 
                 atual = conjuntoAberto.First();
 
-                map[atual.x, atual.y].item = " Z ";
-
-
+               // map[atual.x, atual.y].item = " Z ";
+                 
                 Console.WriteLine(atual.x + " - " + atual.y + "\n");
 
                 Console.WriteLine(amb.ToString());
@@ -154,13 +155,13 @@ namespace aplication_csharp_ia
 
             }
 
-            List<Nodo> caminho = new List<Nodo>();
+            LinkedList<Nodo> caminho = new LinkedList<Nodo>();
 
-            caminho.Add(atual);
+            caminho.AddFirst(atual);
 
             while (atual.prev != null)
             {
-                caminho.Add(atual.prev);
+                caminho.AddFirst(atual.prev);
 
                 atual = atual.prev;
             }
@@ -169,15 +170,15 @@ namespace aplication_csharp_ia
 
         }
 
-        public List<Nodo> BuscaMelhorCaminho(Nodo posAtual, List<Cell> listObj, Ambiente amb)
+        public LinkedList<Nodo> BuscaMelhorCaminho(Nodo posAtual, List<Cell> listObj, Ambiente amb)
         {
 
-            List<Nodo> lPontos = new List<Nodo>();
+            LinkedList<Nodo> lPontos = new LinkedList<Nodo>();
 
             foreach (var l in listObj)
             {
 
-                List<Nodo> lAux = buscaCaminho(posAtual, l, amb);
+                LinkedList<Nodo> lAux = buscaCaminho(posAtual, l, amb);
 
                 if (lAux == null)
                     continue;
@@ -192,7 +193,7 @@ namespace aplication_csharp_ia
 
         public override string ToString()
         {
-            return " A ";
+            return Simbolo;
         }
 
 

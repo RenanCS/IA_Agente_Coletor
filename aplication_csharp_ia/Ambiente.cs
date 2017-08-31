@@ -18,8 +18,8 @@ namespace aplication_csharp_ia
         private bool Procurando_Lixeira { get; set; }
         private bool Procurando_Recarga { get; set; }
 
-        private List<Nodo> melhorcaminho;
-        
+        private LinkedList<Nodo> melhorcaminho;
+
         public Ambiente(Agente oAgent, int tamanho, int iQuantRecargas, int iQuantLixeiras)
         {
             this.oAgente = oAgent;
@@ -49,7 +49,7 @@ namespace aplication_csharp_ia
             oAgente.posAtual = new Nodo(0, 0);
             oAgente.quantLixo = 0;
             oAgente.EncherBateria();
-            map[0, 0].item = oAgente;   
+            map[0, 0].item = oAgente;
         }
 
         private void DesenhaBase(Cell[,] map, int iNxN)
@@ -166,39 +166,71 @@ namespace aplication_csharp_ia
 
             if (Procurando_Lixeira)
             {
+                //****
+                    Procurando_Lixeira = false;
 
-                Procurando_Lixeira = false;
             }
             else if (Procurando_Recarga)
             {
+                //Remove o primeiro ponto de coordenada
+                var caminho = melhorcaminho.First();
 
-                Procurando_Recarga = false;
+                //Atualiza o map
+                map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
+
+                //Atualiza o ponto atual do agente
+                oAgente.posAtual = new Nodo(caminho.x, caminho.y);
+
+                oAgente.Simbolo = " A*";
+
+                //Atualiza o map com a o obj do agente
+                map[caminho.x, caminho.y].item = oAgente;
+
+                //Remove o primeiro ponto, para obter os adjacentes
+                melhorcaminho.RemoveFirst();
+
+                //Quando zerar a lista, significa que o agente chegou no ponto de recarga
+                if (melhorcaminho.Count == 0)
+                {                      
+                    //Carraga a bateria
+                    oAgente.EncherBateria();
+
+                    //FAZER O AGENTE RETORNAR PARA A ULTIMA POSICAO
+
+                    //Evita que entre de novo na condição
+                    Procurando_Recarga = false;
+                }
+                    
             }
             else
             {
+                oAgente.Simbolo = " A ";
+
                 List<Nodo> sucessores = BuscaSucessores(oAgente.posAtual);
 
                 //Verifica Bateria
                 if (oAgente.PoucaBateria())
                 {
                     Procurando_Recarga = true;
+
                     Console.WriteLine("Buscando melhor caminho ... \n");
-                    Console.WriteLine(recargas.Count + " carrregadores disponíveis.\n");
-                    Console.ReadKey();
+
                     //Chamar método A*
                     melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
+
                 }
                 else if (oAgente.LixoCheio())
                 {
                     Procurando_Lixeira = true;
 
-                    //Chamar método A*
                     Console.WriteLine("Buscando melhor caminho ... \n");
+
+                    //Chamar método A*
                     melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, this);
                 }
                 else
                 {
-                    bool avancou = false;  
+                    bool avancou = false;
 
                     //Verificar ambiente somente sucessores que não foram limpos
                     foreach (var suc in sucessores)
@@ -255,24 +287,27 @@ namespace aplication_csharp_ia
 
             List<Nodo> l = new List<Nodo>();
 
+            //Posição Superior
+            if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                l.Add(new Nodo(x - 1, y));
+
+
             //Posição Posterior
             if (y + 1 < tam_map && map[x, y + 1].item != " P ")
                 l.Add(new Nodo(x, y + 1));
 
-            //Posição Anterior
-            if (y - 1 >= 0 && map[x, y - 1].item != " P ")
-                l.Add(new Nodo(x, y - 1));
 
             //Posicao Inferior
             if (x + 1 < tam_map && map[x + 1, y].item != " P ")
                 l.Add(new Nodo(x + 1, y));
 
+            //Posição Anterior
+            if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                l.Add(new Nodo(x, y - 1));
 
 
-            //Posição Superior
-            if (x - 1 >= 0 && map[x - 1, y].item != " P ")
-                l.Add(new Nodo(x - 1, y));
 
+      
 
 
             //Diagonal Esquerda Superior
@@ -312,7 +347,7 @@ namespace aplication_csharp_ia
 
             }
 
-            linha += "Carga Bateria: " + oAgente.quantBateria + "\t\t\n Carga Lixo: " + oAgente.quantLixo;
+            linha += "\n\t ****DADOS DO AGENTE**** \n \t Carga Bateria: " + oAgente.quantBateria + "\n \t Carga Lixo: " + oAgente.quantLixo;
 
             return linha;
         }
