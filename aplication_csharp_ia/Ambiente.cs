@@ -95,7 +95,7 @@ namespace aplication_csharp_ia
             {
                 for (int i = 3; i < iNxN - 3; i++)
                 {
-                    for (int cE = 0, cD = iNxN - 1; cE < iEspaco && cD > iDisDireita; cE++, cD--)
+                    for (int cE = 0, cD = iNxN - 1; cE <= iEspaco || cD >= iDisDireita; cE++, cD--)
                     {
                         //Alocação de objeto de forma aleatória
                         bool inserirEsquerda = (rand.Next(0, 10) % 5) == 0;
