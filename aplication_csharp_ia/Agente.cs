@@ -36,7 +36,7 @@ namespace aplication_csharp_ia
 
         public bool LixoCheio()
         {
-            return capacidade_maxima_bateria == quantLixo;
+            return capacidade_maxima_lixo == quantLixo;
         }
 
         public bool BateriaCheia()
