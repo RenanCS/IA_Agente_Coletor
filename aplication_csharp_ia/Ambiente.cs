@@ -15,8 +15,9 @@ namespace aplication_csharp_ia
         private List<Cell> recargas;
         private Agente oAgente;
 
-        private bool Procurando_Lixeira { get; set; }
-        private bool Procurando_Recarga { get; set; }
+        private bool Procurando_Lixeira;
+        private bool Procurando_Recarga;
+        private bool ativar_descida = true;
 
         private LinkedList<Nodo> melhorcaminho;
         private LinkedList<Nodo> caminhopercorrido;
@@ -50,6 +51,7 @@ namespace aplication_csharp_ia
 
             //Inicia agente
             oAgente.posAtual = new Nodo(0, 0);
+            oAgente.ultimaPosicao = oAgente.posAtual;
             oAgente.quantLixo = 0;
             oAgente.EncherBateria();
             map[0, 0].item = oAgente;
@@ -115,7 +117,7 @@ namespace aplication_csharp_ia
                         else
                             continue;
 
-                        
+
 
                         if (map[i, idxcoluna].item.ToString() == " . ")
                         {
@@ -179,7 +181,7 @@ namespace aplication_csharp_ia
             else if (Procurando_Recarga)
             {
                 if (melhorcaminho.Count > 0)
-                {                          
+                {
                     //Remove o primeiro ponto de coordenada
                     var caminho = melhorcaminho.First();
 
@@ -205,9 +207,10 @@ namespace aplication_csharp_ia
                     {
                         //Carraga a bateria
                         oAgente.EncherBateria();
-                                           
+
                     }
-                }else if (caminhopercorrido.Count > 0)
+                }
+                else if (caminhopercorrido.Count > 0)
                 {
                     //Remove o primeiro ponto de coordenada
                     var caminho = caminhopercorrido.First();
@@ -225,10 +228,10 @@ namespace aplication_csharp_ia
 
                     //Remove o primeiro ponto, para obter os adjacentes
                     caminhopercorrido.RemoveFirst();
-                                     
+
                 }
                 else
-                {                           
+                {
                     //Evita que entre de novo na condição
                     Procurando_Recarga = false;
                 }
@@ -238,7 +241,6 @@ namespace aplication_csharp_ia
             {
                 oAgente.Simbolo = " A ";
 
-                List<Nodo> sucessores = BuscaSucessores(oAgente.posAtual);
 
                 //Verifica Bateria
                 if (oAgente.PoucaBateria())
@@ -251,6 +253,7 @@ namespace aplication_csharp_ia
                     melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
 
                 }
+                //Verifica Lixeira
                 else if (oAgente.LixoCheio())
                 {
                     Procurando_Lixeira = true;
@@ -262,13 +265,32 @@ namespace aplication_csharp_ia
                 }
                 else
                 {
+
+                    //Retorna a lista de sucessores
+                    //Não pode ser a posição anterior e a linha tem que ser mais que a acima do agente
+                    List<Nodo> sucessores = new List<Nodo>();
+
+                    if (ativar_descida)
+                    {                                      
+                        sucessores = BuscaSucessores(oAgente.posAtual).Where(o => o.xy != oAgente.ultimaPosicao.xy && o.x > oAgente.posAtual.x - 1).ToList();
+                        if (sucessores.Count == 0)
+                            ativar_descida = false;
+                    }
+
+                    if (!ativar_descida)
+                    {
+                        sucessores = BuscaSucessores(oAgente.posAtual).Where(o => o.xy != oAgente.ultimaPosicao.xy && o.x < oAgente.posAtual.x + 1).ToList();
+                        if (sucessores.Count == 0)
+                            ativar_descida = true;
+                    }
+
                     bool avancou = false;
 
                     //Verificar ambiente somente sucessores que não foram limpos
                     foreach (var suc in sucessores)
                     {
-                       //if (oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
-                       //    continue;
+                        //if (oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
+                        //    continue;
 
                         var obj = map[suc.x, suc.y].item.ToString();
 
@@ -283,7 +305,9 @@ namespace aplication_csharp_ia
 
                             map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
 
-                           // oAgente.caminhoLimpo.Add(oAgente.posAtual);
+                            // oAgente.caminhoLimpo.Add(oAgente.posAtual);
+
+                            oAgente.ultimaPosicao = oAgente.posAtual;
 
                             oAgente.posAtual = new Nodo(suc.x, suc.y);
 
