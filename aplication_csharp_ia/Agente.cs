@@ -106,7 +106,7 @@ namespace aplication_csharp_ia
                 conjuntoFechado.AddFirst(atual);
 
 
-                foreach (var vizinho in amb.BuscaSucessores(atual))
+                foreach (var vizinho in amb.BuscaSucessores(atual, true))
                 {
                     string tipo_vizinho = amb.map[vizinho.x, vizinho.y].item.ToString();
                     

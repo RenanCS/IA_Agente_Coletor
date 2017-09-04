@@ -12,6 +12,22 @@ namespace aplication_csharp_ia
     class Program
     {
 
+        /*
+         * MODO - FUNCIONANDO
+         * 
+         *      DIREITA
+         *      BAIXO
+         *      ESQUERDA
+         *    
+         * MODO - INDO_RECARREGAR VOLTANDO_RECARGA INDO_DESCARTAR VOLTANDO_DO DESCARTE
+         * 
+         *      QUALQUER DIREÇÃO 
+         * 
+         * 
+         * 
+         * 
+         */
+
 
         static void Main(string[] args)
         {
