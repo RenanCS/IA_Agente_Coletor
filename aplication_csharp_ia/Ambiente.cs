@@ -89,7 +89,7 @@ namespace aplication_csharp_ia
 
         private void DesenhaRecargasLixeiras(Cell[,] map, int iNxN, int iQuantObjetos, bool DesenhaLixeira)
         {
-            Random rand = new Random(556565);
+            Random rand = new Random();
 
             //Espaço entre a parede e a borda 
             int iEspaco = 2;
@@ -100,7 +100,7 @@ namespace aplication_csharp_ia
             {
                 for (int i = 3; i < iNxN - 3; i++)
                 {
-                    for (int cE = 0, cD = iNxN - 1; cE <= iEspaco || cD >= iDisDireita; cE++, cD--)
+                    for (int cE = 0, cD = iNxN - 1; cE <= iEspaco; cE++, cD--)
                     {
 
                         //Alocação de objeto de forma aleatória
