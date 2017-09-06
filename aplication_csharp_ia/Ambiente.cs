@@ -270,7 +270,7 @@ namespace aplication_csharp_ia
                     if (oAgente.posAtual.x == oAgente.ultimaPosicao.x)
                     {
                         //Agente chegou na última linha
-                        if (oAgente.posAtual.x == 9 && oAgente.Acao == TIPO_ACAO.DESCIDA)
+                        if (oAgente.posAtual.x == tam_map - 1 && oAgente.Acao == TIPO_ACAO.DESCIDA)
                             oAgente.Acao = TIPO_ACAO.SUBIDA;
 
                         //Agente chegou na primeira linha
@@ -278,16 +278,29 @@ namespace aplication_csharp_ia
                             oAgente.Acao = TIPO_ACAO.DESCIDA;
 
                         //Agente está nos cantos e começa a caminhar na horizontal
-                        if (oAgente.posAtual.xy == "09")
+                        if (oAgente.posAtual.x == 0 && oAgente.posAtual.y == tam_map - 1 && oAgente.Acao != TIPO_ACAO.HORIZONTAL_DIREITA)
                         {
                             oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
                             oAgente.ultimaPosicao = oAgente.posAtual;
                         }
 
-                        else if (oAgente.posAtual.xy == "99")
+
+                        //Agente está nos cantos e começa a caminhar na horizontal
+                        if (oAgente.posAtual.x == 0 && oAgente.posAtual.y == tam_map - 1 && oAgente.Acao == TIPO_ACAO.HORIZONTAL_DIREITA)
+                        {
+                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA_PLUS;
+                        }
+
+
+                        else if (oAgente.posAtual.x == tam_map - 1 && oAgente.posAtual.y == tam_map - 1)
                         {
                             oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA;
                             oAgente.ultimaPosicao = oAgente.posAtual;
+                        }
+
+                        else if (oAgente.Acao == TIPO_ACAO.HORIZONTAL_DIREITA && oAgente.posAtual.x == 0)
+                        {
+                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
                         }
 
                     }
@@ -400,12 +413,11 @@ namespace aplication_csharp_ia
                     //ESQUERDA
                     if (y - 1 >= 0 && map[x, y - 1].item != " P ")
                         l.Add(new Nodo(x, y - 1));
-                    
+
                     //DIREITA
                     if (y + 1 < tam_map && map[x, y + 1].item != " P ")
                         l.Add(new Nodo(x, y + 1));
 
-                    
                     //ABAIXO
                     if (x + 1 < tam_map && map[x + 1, y].item != " P ")
                         l.Add(new Nodo(x + 1, y));
@@ -413,13 +425,12 @@ namespace aplication_csharp_ia
                     // ACIMA
                     if (x - 1 >= 0 && map[x - 1, y].item != " P ")
                         l.Add(new Nodo(x - 1, y));
-                             
+
                     break;
 
                 case TIPO_ACAO.HORIZONTAL_DIREITA:
 
                     //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
-
 
                     //DIREITA
                     if (y + 1 < tam_map && map[x, y + 1].item != " P ")
@@ -430,14 +441,55 @@ namespace aplication_csharp_ia
                     if (y - 1 >= 0 && map[x, y - 1].item != " P ")
                         l.Add(new Nodo(x, y - 1));
 
+
+
+                    //Diagonal Esquerda Superior
+                    if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
+                        l.Add(new Nodo(x - 1, y - 1));
+
                     // ACIMA
                     if (x - 1 >= 0 && map[x - 1, y].item != " P ")
                         l.Add(new Nodo(x - 1, y));
 
 
+                    //Diagonal Direita Superior
+                    if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
+                        l.Add(new Nodo(x - 1, y + 1));
+
                     //ABAIXO
                     if (x + 1 < tam_map && map[x + 1, y].item != " P ")
                         l.Add(new Nodo(x + 1, y));
+
+
+                    break;
+
+                case TIPO_ACAO.HORIZONTAL_DIREITA_PLUS:
+
+                    //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
+
+                    //DIREITA
+                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                        l.Add(new Nodo(x, y + 1));
+
+
+                    //ESQUERDA
+                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                        l.Add(new Nodo(x, y - 1));
+
+
+                    //ABAIXO
+                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                        l.Add(new Nodo(x + 1, y));
+
+
+                    //Diagonal Esquerda Inferior
+                    if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item != " P ")
+                        l.Add(new Nodo(x + 1, y - 1));
+
+
+                    //Diagonal Direita Inferior
+                    if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
+                        l.Add(new Nodo(x + 1, y + 1));
 
 
                     break;
@@ -465,7 +517,7 @@ namespace aplication_csharp_ia
             if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
                 l.Add(new Nodo(x - 1, y - 1));
 
- 
+
 
             return l;
         }
@@ -498,6 +550,7 @@ namespace aplication_csharp_ia
         DESCIDA = 1,
         SUBIDA,
         HORIZONTAL_ESQUERDA,
-        HORIZONTAL_DIREITA
+        HORIZONTAL_DIREITA,
+        HORIZONTAL_DIREITA_PLUS
     }
 }

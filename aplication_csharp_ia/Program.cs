@@ -46,7 +46,7 @@ namespace aplication_csharp_ia
 
             //Variáveis para o ambiente
             int lixeiras, recargas = 1;
-            int tamanho = 10;
+            int tamanho = 11;
             int quant_lixeiras = 3;
             int quant_recargas = 3;
 
