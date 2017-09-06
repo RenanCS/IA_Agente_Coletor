@@ -53,6 +53,7 @@ namespace aplication_csharp_ia
             oAgente.posAtual = new Nodo(0, 0);
             oAgente.ultimaPosicao = oAgente.posAtual;
             oAgente.quantLixo = 0;
+            oAgente.Acao = TIPO_ACAO.DESCIDA;
             oAgente.EncherBateria();
             map[0, 0].item = oAgente;
         }
@@ -100,7 +101,7 @@ namespace aplication_csharp_ia
             {
                 for (int i = 3; i < iNxN - 3; i++)
                 {
-                    for (int cE = 0, cD = iNxN - 1; cE <= iEspaco; cE++, cD--)
+                    for (int cE = 0, cD = iNxN - 1; cE < iEspaco && cD > iDisDireita; cE++, cD--)
                     {
 
                         //Alocação de objeto de forma aleatória
@@ -239,8 +240,8 @@ namespace aplication_csharp_ia
             }
             else
             {
-                oAgente.Simbolo = " A ";
 
+                oAgente.Simbolo = " A ";
 
                 //Verifica Bateria
                 if (oAgente.PoucaBateria())
@@ -265,32 +266,42 @@ namespace aplication_csharp_ia
                 }
                 else
                 {
+                    //Agente chegou na última linha do ambiente
+                    if (oAgente.posAtual.x == oAgente.ultimaPosicao.x)
+                    {
+                        //Agente chegou na última linha
+                        if (oAgente.posAtual.x == 9 && oAgente.Acao == TIPO_ACAO.DESCIDA)
+                            oAgente.Acao = TIPO_ACAO.SUBIDA;
+
+                        //Agente chegou na primeira linha
+                        else if (oAgente.posAtual.x == 0 && oAgente.Acao == TIPO_ACAO.SUBIDA)
+                            oAgente.Acao = TIPO_ACAO.DESCIDA;
+
+                        //Agente está nos cantos e começa a caminhar na horizontal
+                        if (oAgente.posAtual.xy == "09")
+                        {
+                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
+                            oAgente.ultimaPosicao = oAgente.posAtual;
+                        }
+
+                        else if (oAgente.posAtual.xy == "99")
+                        {
+                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA;
+                            oAgente.ultimaPosicao = oAgente.posAtual;
+                        }
+
+                    }
+
 
                     //Retorna a lista de sucessores
                     //Não pode ser a posição anterior e a linha tem que ser mais que a acima do agente
                     List<Nodo> sucessores = new List<Nodo>();
 
-                    if (ativar_descida)
-                    {                                      
-                        sucessores = BuscaSucessores(oAgente.posAtual).Where(o => o.xy != oAgente.ultimaPosicao.xy && o.x > oAgente.posAtual.x - 1).ToList();
-                        if (sucessores.Count == 0)
-                            ativar_descida = false;
-                    }
-
-                    if (!ativar_descida)
-                    {
-                        sucessores = BuscaSucessores(oAgente.posAtual).Where(o => o.xy != oAgente.ultimaPosicao.xy && o.x < oAgente.posAtual.x + 1).ToList();
-                        if (sucessores.Count == 0)
-                            ativar_descida = true;
-                    }
-
-                    bool avancou = false;
+                    sucessores = BuscaSucessores(oAgente.posAtual, oAgente.Acao).Where(o => o.xy != oAgente.ultimaPosicao.xy).ToList();
 
                     //Verificar ambiente somente sucessores que não foram limpos
                     foreach (var suc in sucessores)
                     {
-                        //if (oAgente.caminhoLimpo.Any(p => p.xy == suc.xy))
-                        //    continue;
 
                         var obj = map[suc.x, suc.y].item.ToString();
 
@@ -301,11 +312,7 @@ namespace aplication_csharp_ia
 
                             oAgente.quantBateria -= 1;
 
-                            avancou = true;
-
                             map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
-
-                            // oAgente.caminhoLimpo.Add(oAgente.posAtual);
 
                             oAgente.ultimaPosicao = oAgente.posAtual;
 
@@ -323,9 +330,7 @@ namespace aplication_csharp_ia
 
                     }
 
-                    //Caso o agente se encurrale, ele limpa cache
-                    if (!avancou)
-                        oAgente.caminhoLimpo.Clear();
+
                 }
             }
 
@@ -334,7 +339,7 @@ namespace aplication_csharp_ia
         }
 
 
-        public List<Nodo> BuscaSucessores(Nodo posAtual, bool buscalinear = false)
+        public List<Nodo> BuscaSucessores(Nodo posAtual, TIPO_ACAO tipo_acao = TIPO_ACAO.DESCIDA)
         {
             //Obs: Está nesta ordem, por causa da movimentação do agente
             // ->, Down, <-, Up,Diagonal Esq Sup, D.D.Sup, D.E.Inf, D.D.Inf 
@@ -343,38 +348,103 @@ namespace aplication_csharp_ia
 
             List<Nodo> l = new List<Nodo>();
 
-            // Esquerda
-            if (x - 1 >= 0 && map[x - 1, y].item != " P ")
-                l.Add(new Nodo(x - 1, y));
+            switch (tipo_acao)
+            {
+                case TIPO_ACAO.DESCIDA:
+
+                    //AGENTE DESCENDO
+
+                    //ABAIXO
+                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                        l.Add(new Nodo(x + 1, y));
+
+                    //DIREITA
+                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                        l.Add(new Nodo(x, y + 1));
+
+                    // ACIMA
+                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                        l.Add(new Nodo(x - 1, y));
+
+                    //   ESQUERDA
+                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                        l.Add(new Nodo(x, y - 1));
+                    break;
+
+                case TIPO_ACAO.SUBIDA:
+
+                    //AGENTE SUBINDO
+
+                    // ACIMA
+                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                        l.Add(new Nodo(x - 1, y));
+
+                    //DIREITA
+                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                        l.Add(new Nodo(x, y + 1));
+
+                    //ABAIXO
+                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                        l.Add(new Nodo(x + 1, y));
+
+                    //   ESQUERDA
+                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                        l.Add(new Nodo(x, y - 1));
+
+                    break;
+
+                case TIPO_ACAO.HORIZONTAL_ESQUERDA:
+
+                    //AGENTE ANDANDO NA HORIZONTAL INDO PARA ESQUERDA
+
+                    //ESQUERDA
+                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                        l.Add(new Nodo(x, y - 1));
+                    
+                    //DIREITA
+                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                        l.Add(new Nodo(x, y + 1));
+
+                    
+                    //ABAIXO
+                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                        l.Add(new Nodo(x + 1, y));
+
+                    // ACIMA
+                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                        l.Add(new Nodo(x - 1, y));
+                             
+                    break;
+
+                case TIPO_ACAO.HORIZONTAL_DIREITA:
+
+                    //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
 
 
-            // Baixo
-            if (y - 1 >= 0 && map[x, y - 1].item != " P ")
-                l.Add(new Nodo(x, y - 1));
+                    //DIREITA
+                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                        l.Add(new Nodo(x, y + 1));
 
 
-            //Posição Posterior
-            if (y + 1 < tam_map && map[x, y + 1].item != " P ")
-                l.Add(new Nodo(x, y + 1));
+                    //ESQUERDA
+                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                        l.Add(new Nodo(x, y - 1));
+
+                    // ACIMA
+                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                        l.Add(new Nodo(x - 1, y));
 
 
-            //Posicao Inferior
-            if (x + 1 < tam_map && map[x + 1, y].item != " P ")
-                l.Add(new Nodo(x + 1, y));
+                    //ABAIXO
+                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                        l.Add(new Nodo(x + 1, y));
 
 
-
-            if (buscalinear) return l;
-
+                    break;
 
 
-            //Diagonal Esquerda Superior
-            if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
-                l.Add(new Nodo(x - 1, y - 1));
+            }
 
-            //Diagonal Direita Superior
-            if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
-                l.Add(new Nodo(x - 1, y + 1));
 
 
             //Diagonal Esquerda Inferior
@@ -386,6 +456,16 @@ namespace aplication_csharp_ia
             if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
                 l.Add(new Nodo(x + 1, y + 1));
 
+
+            //Diagonal Direita Superior
+            if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
+                l.Add(new Nodo(x - 1, y + 1));
+
+            //Diagonal Esquerda Superior
+            if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
+                l.Add(new Nodo(x - 1, y - 1));
+
+ 
 
             return l;
         }
@@ -410,5 +490,14 @@ namespace aplication_csharp_ia
             return linha;
         }
 
+    }
+
+
+    public enum TIPO_ACAO
+    {
+        DESCIDA = 1,
+        SUBIDA,
+        HORIZONTAL_ESQUERDA,
+        HORIZONTAL_DIREITA
     }
 }

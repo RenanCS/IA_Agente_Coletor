@@ -8,6 +8,8 @@ namespace aplication_csharp_ia
 {
     public class Agente
     {
+        public TIPO_ACAO Acao { get; set; }
+
         public List<Nodo> caminhoLimpo { get; set; }
 
         public string Simbolo { get; set; } = " A "; 
@@ -89,8 +91,6 @@ namespace aplication_csharp_ia
                 conjuntoAberto.OrderBy(o => o.fscore).ToList();
 
                 atual = conjuntoAberto.First();
-
-               // map[atual.x, atual.y].item = " Z ";
                  
                 Console.WriteLine(atual.x + " - " + atual.y + "\n");
 
@@ -108,7 +108,7 @@ namespace aplication_csharp_ia
                 conjuntoFechado.AddFirst(atual);
 
 
-                foreach (var vizinho in amb.BuscaSucessores(atual, true))
+                foreach (var vizinho in amb.BuscaSucessores(atual))
                 {
                     string tipo_vizinho = amb.map[vizinho.x, vizinho.y].item.ToString();
                     
