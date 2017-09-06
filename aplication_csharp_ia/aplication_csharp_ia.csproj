@@ -46,7 +46,7 @@
     <Compile Include="Agente.cs" />
     <Compile Include="Ambiente.cs" />
     <Compile Include="Cell.cs" />
-    <Compile Include="Generic.cs" />
+    <Compile Include="Nodo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

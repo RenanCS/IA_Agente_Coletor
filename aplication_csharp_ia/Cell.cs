@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace aplication_csharp_ia
+﻿namespace aplication_csharp_ia
 {
     public class Cell
     {   
-        public int linha { get; set; }
+        public int Linha { get; set; }
 
-        public int coluna { get; set; }
+        public int Coluna { get; set; }
 
-        public object item { get; set; }
+        public object Item { get; set; }
 
         public override string ToString()
         {
-            return item.ToString();
+            return Item.ToString();
         }
     }
 }

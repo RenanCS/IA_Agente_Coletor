@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace aplication_csharp_ia
 {
@@ -10,72 +8,59 @@ namespace aplication_csharp_ia
     {
         public TIPO_ACAO Acao { get; set; }
 
-        public List<Nodo> caminhoLimpo { get; set; }
+        public List<Nodo> CaminhoLimpo { get; set; }
 
-        public string Simbolo { get; set; } = " A "; 
+        public string Simbolo { get; set; } = " A ";
 
         //Nivelamento do lixo
-        private int capacidade_maxima_lixo { get; set; }
-        public int quantLixo { get; set; }
+        private int CapacidadeMaximaLixo { get; set; }
+        public int QuantLixo { get; set; }
 
         public int max_column { get; set; }
 
         //Nivelamento da bateria
-        private int capacidade_maxima_bateria { get; set; }
-        private int capacidade_minima_bateria { get; set; } = 10;
+        private int CapacidadeMaximaBateria { get; set; }
+        private int CapacidadeMinimaBateria { get; set; } = 10;
         public int quantBateria { get; set; }
 
         //Posição atual do agente
-        public Nodo posAtual { get; set; }
+        public Nodo PosicaoAtual { get; set; }
 
         //Última posição no caso de ir recarregar e/ou esvaziar lixo
-        public Nodo ultimaPosicao { get; set; }
+        public Nodo UltimaPosicao { get; set; }
 
-        public Agente(int capacidade_maxima_lixo, int capacidade_maxima_bateria)
+        public Agente(int capacidadeMaximaLixo, int capacidadeMaximaBateria)
         {
-            this.capacidade_maxima_lixo = capacidade_maxima_lixo;
-            this.capacidade_maxima_bateria = capacidade_maxima_bateria;
-            this.caminhoLimpo = new List<Nodo>();
+            CapacidadeMaximaLixo = capacidadeMaximaLixo;
+            CapacidadeMaximaBateria = capacidadeMaximaBateria;
+            CaminhoLimpo = new List<Nodo>();
         }
 
-        public bool LixoCheio()
-        {
-            return capacidade_maxima_lixo == quantLixo;
-        }
+        public bool LixoCheio() => CapacidadeMaximaLixo == QuantLixo;
 
-        public bool BateriaCheia()
-        {
-            return capacidade_maxima_bateria == quantBateria;
-        }
+        public bool BateriaCheia() => CapacidadeMaximaBateria == quantBateria;
 
-        public bool PoucaBateria()
-        {
-            return (quantBateria <= capacidade_minima_bateria);
-        }
+        public bool PoucaBateria() => (quantBateria <= CapacidadeMinimaBateria);
 
-        public void EncherBateria()
-        {
-            quantBateria = capacidade_maxima_bateria;
-        }
+        public void EncherBateria() => quantBateria = CapacidadeMaximaBateria;
 
         //Heurística 
-        internal int Heuristica(Nodo p1, Nodo p2)
+        public int Heuristica(Nodo p1, Nodo p2)
         {
-
             var x = p1.x - p2.x;
             var y = p1.y - p2.y;
             return Math.Abs(x) + Math.Abs(y);
         }
 
-        internal LinkedList<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb)
+        public LinkedList<Nodo> buscaCaminho(Nodo inicio, Cell objetivo, Ambiente amb)
         {
-            Cell[,] map = (Cell[,])amb.map.Clone();
+            Cell[,] mapa = (Cell[,])amb.map.Clone();
 
             Nodo atual = inicio;
 
-            Console.WriteLine(inicio.x + "-" + inicio.y + " => " + objetivo.linha + "-" + objetivo.coluna);
+            Console.WriteLine(inicio.x + "-" + inicio.y + " => " + objetivo.Linha + "-" + objetivo.Coluna);
 
-            Nodo nodo_objetivo = new Nodo(objetivo.linha, objetivo.coluna);
+            Nodo nodo_objetivo = new Nodo(objetivo.Linha, objetivo.Coluna);
 
             List<Nodo> sucessores_objetivo = amb.BuscaSucessores(nodo_objetivo);
 
@@ -91,7 +76,7 @@ namespace aplication_csharp_ia
                 conjuntoAberto.OrderBy(o => o.fscore).ToList();
 
                 atual = conjuntoAberto.First();
-                 
+
                 Console.WriteLine(atual.x + " - " + atual.y + "\n");
 
                 Console.WriteLine(amb.ToString());
@@ -110,12 +95,12 @@ namespace aplication_csharp_ia
 
                 foreach (var vizinho in amb.BuscaSucessores(atual))
                 {
-                    string tipo_vizinho = amb.map[vizinho.x, vizinho.y].item.ToString();
-                    
+                    string tipo_vizinho = amb.map[vizinho.x, vizinho.y].Item.ToString();
+
                     //Posição vizinho é recarga e/ou lixeira não computar
                     if (tipo_vizinho == " L " || tipo_vizinho == " R " || tipo_vizinho == " P ")
                         continue;
-                    
+
                     //Vizinho já está na lista fechada
                     if (conjuntoFechado.Any(o => o.xy == vizinho.xy))
                         continue;
@@ -197,30 +182,5 @@ namespace aplication_csharp_ia
         {
             return Simbolo;
         }
-
-
     }
-
-    public class Nodo
-    {
-        public Nodo(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-            this.xy = string.Concat(x, y);
-            this.fscore = int.MaxValue;
-            this.gscore = 0;
-            this.prev = null;
-        }
-
-        public int x { get; set; }
-        public int y { get; set; }
-        public string xy { get; set; }
-
-        public int fscore { get; set; }
-        public int gscore { get; set; }
-        public Nodo prev { get; set; }
-
-    }
-
 }

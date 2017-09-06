@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace aplication_csharp_ia
 {
     class Program
     {
-
         /*
          * MODO - FUNCIONANDO
          * 
@@ -28,10 +22,8 @@ namespace aplication_csharp_ia
          * 
          */
 
-
         static void Main(string[] args)
         {
-
             Init(args);
         }
 
@@ -45,7 +37,6 @@ namespace aplication_csharp_ia
             int carga_maxima = 500;
 
             //Variáveis para o ambiente
-            int lixeiras, recargas = 1;
             int tamanho = 11;
             int quant_lixeiras = 3;
             int quant_recargas = 3;
@@ -76,7 +67,6 @@ namespace aplication_csharp_ia
                 }
             }
 
-
             Console.WriteLine("Inicializa o agente...");
             var oAgente = new Agente(capacidade_lixo_coletado, carga_maxima);
 
@@ -85,8 +75,6 @@ namespace aplication_csharp_ia
 
             //Print Map
             Console.WriteLine(oMapa.ToString());
-
-            
 
             //Atualização
             while (!bLimpouAmbiente)
@@ -100,8 +88,7 @@ namespace aplication_csharp_ia
                 //Print Map
                 Console.WriteLine(oMapa.ToString());
 
-                Thread.Sleep(200);
-
+                Thread.Sleep(50);
             }
 
             //Informações do grupo
@@ -111,8 +98,6 @@ namespace aplication_csharp_ia
             sDadosDev.AppendLine("Desenvolvedores:");
             sDadosDev.AppendLine("Anderson Fraga, Jovani Brasil, Matheus Lima e  Renan Carvalho");
             Console.WriteLine(sDadosDev.ToString());
-
-
         }
 
     }
