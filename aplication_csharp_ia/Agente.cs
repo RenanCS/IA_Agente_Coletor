@@ -58,6 +58,11 @@ namespace aplication_csharp_ia
             quantBateria = capacidade_maxima_bateria;
         }
 
+        public void LimparLixeira()
+        {
+            quantLixo = 0;
+        }
+
         //Heurística 
         internal int Heuristica(Nodo p1, Nodo p2)
         {

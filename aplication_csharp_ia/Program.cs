@@ -41,12 +41,12 @@ namespace aplication_csharp_ia
             bool bLimpouAmbiente = false;
 
             //Variáveis para o agente
-            int capacidade_lixo_coletado = 500;
-            int carga_maxima = 500;
+            int capacidade_lixo_coletado = 5;
+            int carga_maxima = 20;
 
             //Variáveis para o ambiente
             int lixeiras, recargas = 1;
-            int tamanho = 11;
+            int tamanho = 10;
             int quant_lixeiras = 3;
             int quant_recargas = 3;
 
@@ -100,7 +100,7 @@ namespace aplication_csharp_ia
                 //Print Map
                 Console.WriteLine(oMapa.ToString());
 
-                Thread.Sleep(200);
+                Thread.Sleep(500);
 
             }
 

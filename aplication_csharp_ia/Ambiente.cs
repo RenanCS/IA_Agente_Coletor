@@ -11,6 +11,7 @@ namespace aplication_csharp_ia
         public Cell[,] map { get; set; }
 
         private int tam_map;
+        private int tamanho_percorrido = 0;
         private List<Cell> lixeiras;
         private List<Cell> recargas;
         private Agente oAgente;
@@ -21,6 +22,8 @@ namespace aplication_csharp_ia
 
         private LinkedList<Nodo> melhorcaminho;
         private LinkedList<Nodo> caminhopercorrido;
+
+        private string tipo_nodo_ref = " . ";
 
         public Ambiente(Agente oAgent, int tamanho, int iQuantRecargas, int iQuantLixeiras)
         {
@@ -175,68 +178,11 @@ namespace aplication_csharp_ia
 
             if (Procurando_Lixeira)
             {
-                //****
-                Procurando_Lixeira = false;
-
+                ExecutaAcaoEspecifica(true);
             }
             else if (Procurando_Recarga)
             {
-                if (melhorcaminho.Count > 0)
-                {
-                    //Remove o primeiro ponto de coordenada
-                    var caminho = melhorcaminho.First();
-
-                    //Atualiza o map
-                    map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
-
-                    //Atualiza o ponto atual do agente
-                    oAgente.posAtual = new Nodo(caminho.x, caminho.y);
-
-                    oAgente.Simbolo = " A*";
-
-                    //Atualiza o map com a o obj do agente
-                    map[caminho.x, caminho.y].item = oAgente;
-
-                    //Remove o primeiro ponto, para obter os adjacentes
-                    melhorcaminho.RemoveFirst();
-
-                    //Adiciona no caminho percorrido 
-                    caminhopercorrido.AddFirst(caminho);
-
-                    //Quando zerar a lista, significa que o agente chegou no ponto de recarga
-                    if (melhorcaminho.Count == 0)
-                    {
-                        //Carraga a bateria
-                        oAgente.EncherBateria();
-
-                    }
-                }
-                else if (caminhopercorrido.Count > 0)
-                {
-                    //Remove o primeiro ponto de coordenada
-                    var caminho = caminhopercorrido.First();
-
-                    //Atualiza o map
-                    map[oAgente.posAtual.x, oAgente.posAtual.y].item = " . ";
-
-                    //Atualiza o ponto atual do agente
-                    oAgente.posAtual = new Nodo(caminho.x, caminho.y);
-
-                    oAgente.Simbolo = " A'";
-
-                    //Atualiza o map com a o obj do agente
-                    map[caminho.x, caminho.y].item = oAgente;
-
-                    //Remove o primeiro ponto, para obter os adjacentes
-                    caminhopercorrido.RemoveFirst();
-
-                }
-                else
-                {
-                    //Evita que entre de novo na condição
-                    Procurando_Recarga = false;
-                }
-
+                ExecutaAcaoEspecifica(false);
             }
             else
             {
@@ -248,10 +194,10 @@ namespace aplication_csharp_ia
                 {
                     Procurando_Recarga = true;
 
-                    Console.WriteLine("Buscando melhor caminho ... \n");
-
                     //Chamar método A*
                     melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, recargas, this);
+
+                    tamanho_percorrido = melhorcaminho.Count;
 
                 }
                 //Verifica Lixeira
@@ -259,57 +205,19 @@ namespace aplication_csharp_ia
                 {
                     Procurando_Lixeira = true;
 
-                    Console.WriteLine("Buscando melhor caminho ... \n");
-
                     //Chamar método A*
                     melhorcaminho = oAgente.BuscaMelhorCaminho(oAgente.posAtual, lixeiras, this);
+
+                    tamanho_percorrido = melhorcaminho.Count;
                 }
                 else
                 {
-                    //Agente chegou na última linha do ambiente
-                    if (oAgente.posAtual.x == oAgente.ultimaPosicao.x)
-                    {
-                        //Agente chegou na última linha
-                        if (oAgente.posAtual.x == tam_map - 1 && oAgente.Acao == TIPO_ACAO.DESCIDA)
-                            oAgente.Acao = TIPO_ACAO.SUBIDA;
 
-                        //Agente chegou na primeira linha
-                        else if (oAgente.posAtual.x == 0 && oAgente.Acao == TIPO_ACAO.SUBIDA)
-                            oAgente.Acao = TIPO_ACAO.DESCIDA;
+                    AtualizaDirecaoAgente();
 
-                        //Agente está nos cantos e começa a caminhar na horizontal
-                        if (oAgente.posAtual.x == 0 && oAgente.posAtual.y == tam_map - 1 && oAgente.Acao != TIPO_ACAO.HORIZONTAL_DIREITA)
-                        {
-                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
-                            oAgente.ultimaPosicao = oAgente.posAtual;
-                        }
-
-
-                        //Agente está nos cantos e começa a caminhar na horizontal
-                        if (oAgente.posAtual.x == 0 && oAgente.posAtual.y == tam_map - 1 && oAgente.Acao == TIPO_ACAO.HORIZONTAL_DIREITA)
-                        {
-                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA_PLUS;
-                        }
-
-
-                        else if (oAgente.posAtual.x == tam_map - 1 && oAgente.posAtual.y == tam_map - 1)
-                        {
-                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA;
-                            oAgente.ultimaPosicao = oAgente.posAtual;
-                        }
-
-                        else if (oAgente.Acao == TIPO_ACAO.HORIZONTAL_DIREITA && oAgente.posAtual.x == 0)
-                        {
-                            oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
-                        }
-
-                    }
-
-
-                    //Retorna a lista de sucessores
-                    //Não pode ser a posição anterior e a linha tem que ser mais que a acima do agente
                     List<Nodo> sucessores = new List<Nodo>();
 
+                    //Retorna a lista de sucessores
                     sucessores = BuscaSucessores(oAgente.posAtual, oAgente.Acao).Where(o => o.xy != oAgente.ultimaPosicao.xy).ToList();
 
                     //Verificar ambiente somente sucessores que não foram limpos
@@ -351,6 +259,111 @@ namespace aplication_csharp_ia
             return limpou_tudo;
         }
 
+        private void ExecutaAcaoEspecifica(bool lixeira)
+        {
+            if (melhorcaminho.Count > 0)
+            {
+                //Remove o primeiro ponto de coordenada
+                var caminho = melhorcaminho.First();
+
+                //Atualiza o map
+                map[oAgente.posAtual.x, oAgente.posAtual.y].item = tipo_nodo_ref;
+
+                tipo_nodo_ref = map[caminho.x, caminho.y].item.ToString();
+
+                //Atualiza o ponto atual do agente
+                oAgente.posAtual = new Nodo(caminho.x, caminho.y);
+
+                oAgente.Simbolo = " A*";
+
+                //Atualiza o map com a o obj do agente
+                map[caminho.x, caminho.y].item = oAgente;
+
+                //Remove o primeiro ponto, para obter os adjacentes
+                melhorcaminho.RemoveFirst();
+
+                //Adiciona no caminho percorrido 
+                caminhopercorrido.AddFirst(caminho);
+
+                //Quando zerar a lista, significa que o agente chegou no ponto de recarga
+                if (melhorcaminho.Count == 0)
+                {
+                    if (lixeira)
+                        //Esvaziar lixeira
+                        oAgente.LimparLixeira();
+                    else
+                        //Carraga a bateria
+                        oAgente.EncherBateria();
+
+                }
+            }
+            else if (caminhopercorrido.Count > 0)
+            {
+                //Remove o primeiro ponto de coordenada
+                var caminho = caminhopercorrido.First();
+
+                //Atualiza o map
+                map[oAgente.posAtual.x, oAgente.posAtual.y].item = tipo_nodo_ref;
+
+                tipo_nodo_ref = map[caminho.x, caminho.y].item.ToString();
+
+                //Atualiza o ponto atual do agente
+                oAgente.posAtual = new Nodo(caminho.x, caminho.y);
+
+                oAgente.Simbolo = " A'";
+
+                //Atualiza o map com a o obj do agente
+                map[caminho.x, caminho.y].item = oAgente;
+
+                //Remove o primeiro ponto, para obter os adjacentes
+                caminhopercorrido.RemoveFirst();
+
+            }
+            else
+            {
+
+                //Evita que entre de novo na condição
+                if (lixeira)
+                    Procurando_Lixeira = false;
+                else
+                    Procurando_Recarga = false;
+            }
+
+        }
+
+        private void AtualizaDirecaoAgente()
+        {
+
+            //Agente chegou na última linha
+            if (oAgente.posAtual.x == tam_map - 1 && oAgente.Acao == TIPO_ACAO.DESCIDA)
+                oAgente.Acao = TIPO_ACAO.SUBIDA;
+
+            //Agente chegou na primeira linha
+            else if (oAgente.posAtual.x == 0 && oAgente.Acao == TIPO_ACAO.SUBIDA)
+                oAgente.Acao = TIPO_ACAO.DESCIDA;
+
+            //Agente está no canto dreito superior
+            if (oAgente.posAtual.x == 0 && oAgente.posAtual.y == tam_map - 1)
+            {
+                if (oAgente.Acao == TIPO_ACAO.SUBIDA || oAgente.Acao == TIPO_ACAO.SUBIDA)
+                {
+                    oAgente.Acao = TIPO_ACAO.HORIZONTAL_ESQUERDA;
+                    oAgente.ultimaPosicao = oAgente.posAtual;
+                }
+                else if (oAgente.Acao == TIPO_ACAO.HORIZONTAL_ESQUERDA || oAgente.Acao == TIPO_ACAO.HORIZONTAL_DIREITA)
+                {
+                    oAgente.Acao = TIPO_ACAO.HORIZONTAL_PLUS;
+                }
+            }
+
+            // Agente está no canto direito inferior
+            else if (oAgente.posAtual.x == tam_map - 1 && oAgente.posAtual.y == tam_map - 1)
+            {
+                oAgente.Acao = TIPO_ACAO.HORIZONTAL_DIREITA;
+                oAgente.ultimaPosicao = oAgente.posAtual;
+            }
+
+        }
 
         public List<Nodo> BuscaSucessores(Nodo posAtual, TIPO_ACAO tipo_acao = TIPO_ACAO.DESCIDA)
         {
@@ -379,9 +392,6 @@ namespace aplication_csharp_ia
                     if (x - 1 >= 0 && map[x - 1, y].item != " P ")
                         l.Add(new Nodo(x - 1, y));
 
-                    //   ESQUERDA
-                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
-                        l.Add(new Nodo(x, y - 1));
                     break;
 
                 case TIPO_ACAO.SUBIDA:
@@ -399,10 +409,6 @@ namespace aplication_csharp_ia
                     //ABAIXO
                     if (x + 1 < tam_map && map[x + 1, y].item != " P ")
                         l.Add(new Nodo(x + 1, y));
-
-                    //   ESQUERDA
-                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
-                        l.Add(new Nodo(x, y - 1));
 
                     break;
 
@@ -436,21 +442,17 @@ namespace aplication_csharp_ia
                     if (y + 1 < tam_map && map[x, y + 1].item != " P ")
                         l.Add(new Nodo(x, y + 1));
 
-
                     //ESQUERDA
                     if (y - 1 >= 0 && map[x, y - 1].item != " P ")
                         l.Add(new Nodo(x, y - 1));
-
-
-
-                    //Diagonal Esquerda Superior
-                    if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
-                        l.Add(new Nodo(x - 1, y - 1));
 
                     // ACIMA
                     if (x - 1 >= 0 && map[x - 1, y].item != " P ")
                         l.Add(new Nodo(x - 1, y));
 
+                    //Diagonal Esquerda Superior
+                    if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
+                        l.Add(new Nodo(x - 1, y - 1));
 
                     //Diagonal Direita Superior
                     if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
@@ -463,7 +465,7 @@ namespace aplication_csharp_ia
 
                     break;
 
-                case TIPO_ACAO.HORIZONTAL_DIREITA_PLUS:
+                case TIPO_ACAO.HORIZONTAL_PLUS:
 
                     //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
 
@@ -537,7 +539,25 @@ namespace aplication_csharp_ia
 
             }
 
-            linha += "\n\t ****DADOS DO AGENTE**** \n \t Carga Bateria: " + oAgente.quantBateria + "\n \t Carga Lixo: " + oAgente.quantLixo;
+
+            linha += "\n\t ****DADOS DO AGENTE**** ";
+            linha += "\n \t Carga Bateria: " + oAgente.quantBateria;
+            linha += "\n \t Carga Lixo: " + oAgente.quantLixo;
+
+            linha += "\n\n";
+
+            if (Procurando_Lixeira)
+            {
+                linha += " \n\t Buscando melhor caminho para lixeira ****";
+                linha += " \n\t Melhor caminho: " + tamanho_percorrido;
+            }
+
+            if (Procurando_Recarga)
+            {
+                linha += " \n\t Buscando melhor caminho para recarga ****";
+                linha += " \n\t Melhor caminho: " + tamanho_percorrido;
+            }
+
 
             return linha;
         }
@@ -551,6 +571,6 @@ namespace aplication_csharp_ia
         SUBIDA,
         HORIZONTAL_ESQUERDA,
         HORIZONTAL_DIREITA,
-        HORIZONTAL_DIREITA_PLUS
+        HORIZONTAL_PLUS
     }
 }
