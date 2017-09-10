@@ -8,10 +8,9 @@ namespace aplication_csharp_ia
 {
     public class Agente
     {
-        public TIPO_ACAO Acao { get; set; }
-
-        public List<Nodo> caminhoLimpo { get; set; }
-
+        public int tentativas_limpeza { get; set; }
+        public TIPO_ACAO Acao { get; set; }  
+        public List<Nodo> caminhoLimpo { get; set; }  
         public string Simbolo { get; set; } = " A "; 
 
         //Nivelamento do lixo
@@ -76,9 +75,7 @@ namespace aplication_csharp_ia
         {
             Cell[,] map = (Cell[,])amb.map.Clone();
 
-            Nodo atual = inicio;
-
-            Console.WriteLine(inicio.x + "-" + inicio.y + " => " + objetivo.linha + "-" + objetivo.coluna);
+            Nodo atual = inicio;                                                                            
 
             Nodo nodo_objetivo = new Nodo(objetivo.linha, objetivo.coluna);
 
@@ -93,14 +90,13 @@ namespace aplication_csharp_ia
 
             while (true)
             {
-                conjuntoAberto.OrderBy(o => o.fscore).ToList();
+                var listoder = conjuntoAberto.OrderBy(o => o.fscore).ToList();
 
-                atual = conjuntoAberto.First();
-                 
-                Console.WriteLine(atual.x + " - " + atual.y + "\n");
+                conjuntoAberto.Clear();
 
-                Console.WriteLine(amb.ToString());
+                conjuntoAberto = new LinkedList<Nodo>(listoder);
 
+                atual = conjuntoAberto.First();                                                             
 
                 if (sucessores_objetivo.Any(o => o.xy == atual.xy))
                     break; // Encontrou o caminho
@@ -198,6 +194,7 @@ namespace aplication_csharp_ia
             return lPontos;
         }
 
+
         public override string ToString()
         {
             return Simbolo;
@@ -228,4 +225,13 @@ namespace aplication_csharp_ia
 
     }
 
+}
+
+
+static class Extensions
+{
+    public static IList<T> Clone<T>(this IList<T> listToClone) where T : ICloneable
+    {
+        return listToClone.Select(item => (T)item.Clone()).ToList();
+    }
 }

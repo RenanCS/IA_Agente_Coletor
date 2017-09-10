@@ -53,6 +53,7 @@ namespace aplication_csharp_ia
             DesenhaLixo(map, tam_map, quantLixo);
 
             //Inicia agente
+            oAgente.tentativas_limpeza = int.Parse(Math.Pow((tam_map * tam_map), 2).ToString());
             oAgente.posAtual = new Nodo(0, 0);
             oAgente.ultimaPosicao = oAgente.posAtual;
             oAgente.quantLixo = 0;
@@ -133,7 +134,7 @@ namespace aplication_csharp_ia
                             else
                             {
                                 map[i, idxcoluna].item = " R ";
-                                recargas.Add(new Cell() { item = " L ", linha = i, coluna = idxcoluna });
+                                recargas.Add(new Cell() { item = " R ", linha = i, coluna = idxcoluna });
                             }
 
                             if ((iQuantObjetos -= 1) == 0)
@@ -214,6 +215,14 @@ namespace aplication_csharp_ia
                 {
 
                     AtualizaDirecaoAgente();
+
+                    oAgente.tentativas_limpeza -= 1;
+
+                    if (oAgente.tentativas_limpeza == 0)
+                    {
+                        limpou_tudo = true;
+                    }
+
 
                     List<Nodo> sucessores = new List<Nodo>();
 
@@ -543,7 +552,14 @@ namespace aplication_csharp_ia
             linha += "\n\t ****DADOS DO AGENTE**** ";
             linha += "\n \t Carga Bateria: " + oAgente.quantBateria;
             linha += "\n \t Carga Lixo: " + oAgente.quantLixo;
+            linha += "\n \t Tentativas de limpeza: " + oAgente.tentativas_limpeza;
 
+            linha += "\n\n";
+
+            linha += "\n\t ****LEGENDA AGENTE**** ";
+            linha += "\n \t Executando A* ";
+            linha += "\n \t Retornando A' ";
+                                           
             linha += "\n\n";
 
             if (Procurando_Lixeira)
