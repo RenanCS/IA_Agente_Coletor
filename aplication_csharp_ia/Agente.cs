@@ -14,13 +14,13 @@ namespace aplication_csharp_ia
         public string Simbolo { get; set; } = " A "; 
 
         //Nivelamento do lixo
-        private int capacidade_maxima_lixo { get; set; }
+        public int capacidade_maxima_lixo { get; set; }
         public int quantLixo { get; set; }
 
         public int max_column { get; set; }
 
         //Nivelamento da bateria
-        private int capacidade_maxima_bateria { get; set; }
+        public int capacidade_maxima_bateria { get; set; }
         private int capacidade_minima_bateria { get; set; } = 10;
         public int quantBateria { get; set; }
 

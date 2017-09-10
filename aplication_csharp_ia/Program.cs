@@ -12,21 +12,6 @@ namespace aplication_csharp_ia
     class Program
     {
 
-        /*
-         * MODO - FUNCIONANDO
-         * 
-         *      DIREITA
-         *      BAIXO
-         *      ESQUERDA
-         *    
-         * MODO - INDO_RECARREGAR VOLTANDO_RECARGA INDO_DESCARTAR VOLTANDO_DO DESCARTE
-         * 
-         *      QUALQUER DIREÇÃO 
-         * 
-         * 
-         * 
-         * 
-         */
 
 
         static void Main(string[] args)
@@ -51,27 +36,30 @@ namespace aplication_csharp_ia
             int quant_recargas = 3;
 
             Console.WriteLine("Tradução...");
+    
             //(n) =(Linha,Coluna), Capacidade Lixo (T), Carga Minima (C), QuantLixeiras (l), QuantRecargas(r)
             foreach (var value in args)
-            {
-                var dados = int.Parse(value.Split('=')[0]);
+            {  
+                var dados = value.Split('=');
 
-                switch (value)
+                Console.WriteLine(String.Join(" | ", dados));
+
+                switch (dados[0].ToString())
                 {
                     case "n":
-                        tamanho = dados;
+                        tamanho = int.Parse(dados[1]);
                         break;
                     case "t":
-                        capacidade_lixo_coletado = dados;
+                        capacidade_lixo_coletado = int.Parse(dados[1]);
                         break;
                     case "c":
-                        carga_maxima = dados;
+                        carga_maxima = int.Parse(dados[1]);
                         break;
                     case "l":
-                        quant_lixeiras = dados;
+                        quant_lixeiras = int.Parse(dados[1]);
                         break;
                     case "r":
-                        quant_recargas = dados;
+                        quant_recargas = int.Parse(dados[1]);
                         break;
                 }
             }

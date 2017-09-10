@@ -557,9 +557,16 @@ namespace aplication_csharp_ia
             linha += "\n\n";
 
             linha += "\n\t ****LEGENDA AGENTE**** ";
-            linha += "\n \t Executando A* ";
-            linha += "\n \t Retornando A' ";
-                                           
+            linha += "\n \t Executando A* | Retornando A' ";
+            linha += "\n \t Tamanho do Mapa: " +  tam_map + " x " + tam_map;
+            linha += "\n \t Capacidade Máxima Recarga: " + oAgente.capacidade_maxima_bateria;
+            linha += "\n \t Capacidade Máxima Lixo: " + oAgente.capacidade_maxima_lixo;
+            linha += "\n \t Quantidade lixeiras: " + lixeiras.Count;
+            linha += "\n \t Quantidade Recargas: " + recargas.Count;
+
+
+
+
             linha += "\n\n";
 
             if (Procurando_Lixeira)
