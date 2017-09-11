@@ -90,11 +90,16 @@ namespace aplication_csharp_ia
 
             //Informações do grupo
             StringBuilder sDadosDev = new StringBuilder();
-            sDadosDev.AppendLine("Inteligência Artifical T1 2017/2 ");
-            sDadosDev.AppendLine("***Agente Coletor de Lixo*** ");
-            sDadosDev.AppendLine("Desenvolvedores:");
-            sDadosDev.AppendLine("Anderson Fraga, Jovani Brasil, Matheus Lima e  Renan Carvalho");
+            sDadosDev.AppendLine("\t Inteligência Artifical T1 2017/2 ");
+            sDadosDev.AppendLine("\t ***Agente Coletor de Lixo*** ");
+            sDadosDev.AppendLine("\t Desenvolvedores:");
+            sDadosDev.AppendLine("\t Anderson Fraga, Jovani Brasil, Matheus Lima e  Renan Carvalho");
+            sDadosDev.AppendLine("\n\n");
+            sDadosDev.AppendLine("\t Aperte [ENTER] para fechar!");
+
             Console.WriteLine(sDadosDev.ToString());
+
+            Console.Read();
 
 
         }
