@@ -18,12 +18,13 @@ namespace aplication_csharp_ia
 
         private bool Procurando_Lixeira;
         private bool Procurando_Recarga;
-        private bool ativar_descida = true;
 
         private LinkedList<Nodo> melhorcaminho;
         private LinkedList<Nodo> caminhopercorrido;
 
         private string tipo_nodo_ref = " . ";
+
+        private const string PAREDE = " P ";
 
         public Ambiente(Agente oAgent, int tamanho, int iQuantRecargas, int iQuantLixeiras)
         {
@@ -53,7 +54,7 @@ namespace aplication_csharp_ia
             DesenhaLixo(map, tam_map, quantLixo);
 
             //Inicia agente
-            oAgente.tentativas_limpeza = int.Parse(Math.Pow((tam_map * tam_map), 2).ToString());
+            oAgente.tentativas_limpeza = tam_map * tam_map * 3;
             oAgente.posAtual = new Nodo(0, 0);
             oAgente.ultimaPosicao = oAgente.posAtual;
             oAgente.quantLixo = 0;
@@ -83,12 +84,12 @@ namespace aplication_csharp_ia
             {
                 if (i == 2 || i == iNxN - 3)
                 {
-                    map[i, iEspaco - 1] = new Cell() { item = " P " };
-                    map[i, iDisDireita + 1] = new Cell() { item = " P " };
+                    map[i, iEspaco - 1] = new Cell() { item = PAREDE };
+                    map[i, iDisDireita + 1] = new Cell() { item = PAREDE };
                 }
 
-                map[i, iEspaco] = new Cell() { item = " P " };
-                map[i, iDisDireita] = new Cell() { item = " P " };
+                map[i, iEspaco] = new Cell() { item = PAREDE };
+                map[i, iDisDireita] = new Cell() { item = PAREDE };
             }
         }
 
@@ -390,15 +391,15 @@ namespace aplication_csharp_ia
                     //AGENTE DESCENDO
 
                     //ABAIXO
-                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                    if (x + 1 < tam_map && map[x + 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y));
 
                     //DIREITA
-                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                    if (y + 1 < tam_map && map[x, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y + 1));
 
                     // ACIMA
-                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                    if (x - 1 >= 0 && map[x - 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y));
 
                     break;
@@ -408,15 +409,15 @@ namespace aplication_csharp_ia
                     //AGENTE SUBINDO
 
                     // ACIMA
-                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                    if (x - 1 >= 0 && map[x - 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y));
 
                     //DIREITA
-                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                    if (y + 1 < tam_map && map[x, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y + 1));
 
                     //ABAIXO
-                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                    if (x + 1 < tam_map && map[x + 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y));
 
                     break;
@@ -426,19 +427,19 @@ namespace aplication_csharp_ia
                     //AGENTE ANDANDO NA HORIZONTAL INDO PARA ESQUERDA
 
                     //ESQUERDA
-                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                    if (y - 1 >= 0 && map[x, y - 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y - 1));
 
                     //DIREITA
-                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                    if (y + 1 < tam_map && map[x, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y + 1));
 
                     //ABAIXO
-                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                    if (x + 1 < tam_map && map[x + 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y));
 
                     // ACIMA
-                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                    if (x - 1 >= 0 && map[x - 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y));
 
                     break;
@@ -448,27 +449,27 @@ namespace aplication_csharp_ia
                     //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
 
                     //DIREITA
-                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                    if (y + 1 < tam_map && map[x, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y + 1));
 
                     //ESQUERDA
-                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                    if (y - 1 >= 0 && map[x, y - 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y - 1));
 
                     // ACIMA
-                    if (x - 1 >= 0 && map[x - 1, y].item != " P ")
+                    if (x - 1 >= 0 && map[x - 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y));
 
                     //Diagonal Esquerda Superior
-                    if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
+                    if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y - 1));
 
                     //Diagonal Direita Superior
-                    if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
+                    if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x - 1, y + 1));
 
                     //ABAIXO
-                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                    if (x + 1 < tam_map && map[x + 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y));
 
 
@@ -479,27 +480,27 @@ namespace aplication_csharp_ia
                     //AGENTE ANDANDO NA HORIZONTAL INDO PARA DIREITA
 
                     //DIREITA
-                    if (y + 1 < tam_map && map[x, y + 1].item != " P ")
+                    if (y + 1 < tam_map && map[x, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y + 1));
 
 
                     //ESQUERDA
-                    if (y - 1 >= 0 && map[x, y - 1].item != " P ")
+                    if (y - 1 >= 0 && map[x, y - 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x, y - 1));
 
 
                     //ABAIXO
-                    if (x + 1 < tam_map && map[x + 1, y].item != " P ")
+                    if (x + 1 < tam_map && map[x + 1, y].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y));
 
 
                     //Diagonal Esquerda Inferior
-                    if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item != " P ")
+                    if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y - 1));
 
 
                     //Diagonal Direita Inferior
-                    if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
+                    if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item.ToString() != PAREDE)
                         l.Add(new Nodo(x + 1, y + 1));
 
 
@@ -511,21 +512,21 @@ namespace aplication_csharp_ia
 
 
             //Diagonal Esquerda Inferior
-            if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item != " P ")
+            if (x + 1 < tam_map && y - 1 >= 0 && map[x + 1, y - 1].item.ToString() != PAREDE)
                 l.Add(new Nodo(x + 1, y - 1));
 
 
             //Diagonal Direita Inferior
-            if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item != " P ")
+            if (x + 1 < tam_map && y + 1 < tam_map && map[x + 1, y + 1].item.ToString() != PAREDE)
                 l.Add(new Nodo(x + 1, y + 1));
 
 
             //Diagonal Direita Superior
-            if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item != " P ")
+            if (x - 1 >= 0 && y + 1 < tam_map && map[x - 1, y + 1].item.ToString() != PAREDE)
                 l.Add(new Nodo(x - 1, y + 1));
 
             //Diagonal Esquerda Superior
-            if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item != " P ")
+            if (x - 1 >= 0 && y - 1 >= 0 && map[x - 1, y - 1].item.ToString() != PAREDE)
                 l.Add(new Nodo(x - 1, y - 1));
 
 

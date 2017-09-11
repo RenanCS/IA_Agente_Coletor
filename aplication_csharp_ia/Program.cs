@@ -11,9 +11,6 @@ namespace aplication_csharp_ia
 {
     class Program
     {
-
-
-
         static void Main(string[] args)
         {
 
@@ -30,7 +27,6 @@ namespace aplication_csharp_ia
             int carga_maxima = 20;
 
             //Variáveis para o ambiente
-            int lixeiras, recargas = 1;
             int tamanho = 10;
             int quant_lixeiras = 3;
             int quant_recargas = 3;
