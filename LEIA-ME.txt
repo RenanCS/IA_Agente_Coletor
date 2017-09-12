@@ -1,0 +1,21 @@
+Trabalho de IA - Coletor de Lixo utilizando A*
+
+Orientador: Silvia Moreas
+
+Desenvolvedores:
+
+-> Anderson Fraga, 
+-> Jovani Brasil, 
+-> Matheus Lima,
+-> Renan Carvalho
+
+********************** WINDOWS *****************
+Para executar o arquivo no Windows, basta clicar 
+no MAKEWINDOWS e responder as perguntas solicitadas, 
+exemplo: Tamanho do mapa, capacidade máxima de cargo ...
+
+********************* LINUX ********************
+Para executar o arquivo no Windows, basta via terminal
+carregar o MAKEFILE e responder as perguntas solicitadas, 
+exemplo: Tamanho do mapa, capacidade máxima de cargo ...
+
